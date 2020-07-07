@@ -73,7 +73,7 @@ while(1):
         #print("{:0.2f} {:0.0f} {:0.0f} {:0.0f} {:0.0f}".format(r,x_start,x_stop,y_start,y_stop))
         
         for i in range(x_start, x_stop, 1):
-            for j in range(y_start, x_stop, 1):
+            for j in range(y_start, y_stop, 1):
                 if frame_sum[i,j]:
                     density +=1
     
