@@ -58,21 +58,36 @@ while(1):
         center_y= total_y / total_m;
         density= 0;
         
-        for i in range(int(center_x- (r/3)), int(center_x+(r/3)), 1):
-            for j in range(int(center_y-(r/3)), int(center_y+(r/3)), 1):
+        x_start= int(center_x - r/2)
+        if x_start<0:
+            x_start= 0
+        x_stop = int(center_x + r/2)
+        if x_stop>639:
+            x_stop= 639
+        y_start= int(center_y - r/2)
+        if y_start<0:
+            y_start= 0
+        y_stop = int(center_y + r/2)
+        if y_stop>439:
+            y_stop= 439
+        #print("{:0.2f} {:0.0f} {:0.0f} {:0.0f} {:0.0f}".format(r,x_start,x_stop,y_start,y_stop))
+        
+        for i in range(x_start, x_stop, 1):
+            for j in range(y_start, x_stop, 1):
                 if frame_sum[i,j]:
                     density +=1
     
-        print("cacah:{}\ttitik:({:0.2f},{:0.2f})\tradius={:0.2f}\tdensity={:0.2f}".format(len(contours), center_x, center_y, r,density/r))
+        print("count:{}\tpoint:({:0.2f},{:0.2f})\tradius={:0.2f}\tdensity={:0.2f}".format(len(contours), center_x, center_y, r,density/r))
         
+    cv2.imshow('frame',frame)
     cv2.imshow('deteksi',frame_sum)
     
     k = cv2.waitKey(16) & 0xff
     if k == 27:
         break
 
-for n in range(0, aggre):
-    cv2.imwrite('{}.png'.format(str(n).zfill(5)), frameb[n])
+#for n in range(0, aggre):
+#    cv2.imwrite('{}.png'.format(str(n).zfill(5)), frameb[n])
             
 cap.release()
 cv2.destroyAllWindows()
