@@ -17,28 +17,28 @@ n=1
 step = 0
 
 frameb = []
-aggre= 20;
+aggre= 5;
 
 while(1):
     ret, frame = cap.read()
     invr = cv2.bitwise_not(frame)
+    # init the frames
     adjusted = cv2.convertScaleAbs(invr, alpha=a, beta=b)
     framen = fgbg.apply(adjusted)
     
-    # init the frames
-    if n:
-        for n in range(0, aggre):
+    if n>0:
+        for i in range(0, aggre):
             frameb.append(framen);
-    
-    # add the frames
-    frame_sum= 0;
-    frameb[0] = framen
-    for n in range(0, aggre):
-        frame_sum += frameb[n]
-    
+        n=0
+        
     # shift the frames
-    for n in range(1, aggre):
-        frameb[n] = frameb[n-1]
+    for i in range(0, aggre-1):
+        frameb[i]= frameb[i+1];
+    frameb[aggre-1] = framen
+    
+    frame_sum= 0;
+    for i in range(0, aggre):
+        frame_sum += frameb[i]
     
     # calculate blob position here
     #keypoints = detector.detect(sum) # iki nggarahi mati
@@ -50,5 +50,8 @@ while(1):
     if k == 27:
         break
 
+#for n in range(0, aggre):
+#    cv2.imwrite('{}.png'.format(str(n).zfill(5)), frameb[n])
+            
 cap.release()
 cv2.destroyAllWindows()
