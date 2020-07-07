@@ -1,4 +1,4 @@
-import numpy
+import numpy as np
 import cv2
 import sys
 
@@ -8,8 +8,7 @@ cap.set(cv2.CAP_PROP_POS_FRAMES, float(sys.argv[2]))
 fgbg = cv2.createBackgroundSubtractorMOG2(200, 15, bool(0))
 
 params = cv2.SimpleBlobDetector_Params()
-params.minThreshold = 15
-detector = cv2.SimpleBlobDetector(params)
+detector = cv2.SimpleBlobDetector()
 
 a = 1.2 # Contrast control (1.0-3.0)
 b = 0 # Brightness control (0-100)
@@ -41,10 +40,15 @@ while(1):
         frame_sum += frameb[i]
     
     # calculate blob position here
-    #keypoints = detector.detect(sum) # iki nggarahi mati
+    contours, hierarchy = cv2.findContours(frame_sum, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
+    print( len(contours))
+    for c in contours:
+        x,y,w,h = cv2.boundingRect(c)
+        center = (x,y)
+        #print (center)
     
     cv2.imshow('frame_sum from frames',frame_sum)
-    cv2.imshow('frame',frame)
+    cv2.imshow('frame',frame_sum)
     
     k = cv2.waitKey(16) & 0xff
     if k == 27:
