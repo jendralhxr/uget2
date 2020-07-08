@@ -77,10 +77,10 @@ while(1):
                 if frame_sum[i,j]:
                     density +=1
     
-        print("count:{}\tpoint:({:0.2f},{:0.2f})\tradius={:0.2f}\tdensity={:0.2f}".format(len(contours), center_x, center_y, r,density/r))
+        print("count:{}\tpoint:({:0.2f},{:0.2f})\tradius={:0.2f}\tdensity={:0.2f}".format(len(contours), center_x, center_y, r, density/r))
         
-    cv2.imshow('frame',frame)
-    cv2.imshow('deteksi',frame_sum)
+    #cv2.imshow('frame',frame)
+    #cv2.imshow('deteksi',frame_sum)
     
     k = cv2.waitKey(16) & 0xff
     if k == 27:
