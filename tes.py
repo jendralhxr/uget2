@@ -6,14 +6,19 @@ import sys
 cap = cv2.VideoCapture(sys.argv[1])
 cap.set(cv2.CAP_PROP_POS_FRAMES, float(sys.argv[2]))
  
-fgbg = cv2.createBackgroundSubtractorMOG2(200, 15, bool(0))
+fgbg = cv2.createBackgroundSubtractorMOG2(50, 10, bool(0))
 
-a = 1.2 # Contrast control (1.0-3.0)
+a = 1.2 # Contrast control (1.0-3.0) bukan control tanpa r
 b = 0 # Brightness control (0-100)
 frameb = []
 aggre= 5;
 
+video_width  = int(cap.get(3))  # float
+video_height = int(cap.get(4)) # float
+
+density_minimum= 10000000
 framenum = 0
+
 while(1):
     ret, frame = cap.read()
     invr = cv2.bitwise_not(frame)
@@ -26,7 +31,7 @@ while(1):
             frameb.append(framen);
     framenum += 1
             
-    
+    #nulis ngawur
     # shift the frames
     for i in range(0, aggre-1):
         frameb[i]= frameb[i+1];
@@ -62,27 +67,30 @@ while(1):
         if x_start<0:
             x_start= 0
         x_stop = int(center_x + r/2)
-        if x_stop>639:
-            x_stop= 639
+        if x_stop>video_width:
+            x_stop= video_width
         y_start= int(center_y - r/2)
         if y_start<0:
             y_start= 0
         y_stop = int(center_y + r/2)
-        if y_stop>439:
-            y_stop= 439
+        if y_stop>video_height:
+            y_stop= video_height
         #print("{:0.2f} {:0.0f} {:0.0f} {:0.0f} {:0.0f}".format(r,x_start,x_stop,y_start,y_stop))
         
-        for i in range(x_start, x_stop, 1):
-            for j in range(y_start, y_stop, 1):
-                if frame_sum[i,j]:
+        for i in range(x_start, x_stop-1, 1):
+            for j in range(y_start, y_stop-1, 1):
+                if frame_sum[j,i]:
                     density +=1
     
-        print("count:{}\tpoint:({:0.2f},{:0.2f})\tradius={:0.2f}\tdensity={:0.2f}".format(len(contours), center_x, center_y, r, density/r))
+        if density_minimum>total_m:
+            density_minimum= total_m;
+            
+        print("time:{:0.2f}\tcount:{}\tpoint:({:0.2f},{:0.2f})\tdensity={:0.0f}\tratio={:0.3f}".format(framenum/60,len(contours), center_x, center_y, total_m, total_m/density_minimum))
         
-    #cv2.imshow('frame',frame)
-    #cv2.imshow('deteksi',frame_sum)
+    cv2.imshow('frame',frame)
+    cv2.imshow('deteksi',frame_sum)
     
-    k = cv2.waitKey(16) & 0xff
+    k = cv2.waitKey(1) & 0xff
     if k == 27:
         break
 
