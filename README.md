@@ -1,4 +1,4 @@
-# Cell Object COunting Tools (COCOT)
+# COMOT: cell counting and motility observation tool
 
 kamerad bersama menghitung  uget-uget
 
