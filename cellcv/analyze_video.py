@@ -1,3 +1,5 @@
+import csv
+import os
 from typing import Tuple
 
 import cv2
@@ -105,7 +107,13 @@ class VideoAnalyzer:
 
         return center_x, center_y, total_m, total_m / self.density_minimum
 
-    def analyse(self, start_frame: int, end_frame: int, show_video: bool = False):
+    def analyse(
+        self,
+        start_frame: int,
+        end_frame: int,
+        show_video: bool = False,
+        verbose: bool = True,
+    ):
         """
         Analyse the video and print the outputs
 
@@ -120,6 +128,8 @@ class VideoAnalyzer:
 
         fgbg = cv2.createBackgroundSubtractorMOG2(50, 10, bool(0))
         frameb = []
+        result_dict = []
+
         for frame_n in range(start_frame, end_frame):
             ret, frame = cap.read()
             invr = cv2.bitwise_not(frame)
@@ -146,18 +156,41 @@ class VideoAnalyzer:
                     total_x, total_y, total_m, frame_sum
                 )
                 time = (frame_n - start_frame) / self.fps
-                print(
-                    "time:{:0.2f}\tcount:{}\tpoint:({:0.2f},{:0.2f})\tdensity={:0.0f}\tratio={:0.3f}".format(
-                        time, blob_count, center_x, center_y, total_m, ratio
-                    )
-                )
 
+                if verbose:
+                    print(
+                        "time:{:0.2f}\tcount:{}\tpoint:({:0.2f},{:0.2f})\tdensity={:0.0f}\tratio={:0.3f}".format(
+                            time, blob_count, center_x, center_y, total_m, ratio
+                        )
+                    )
+                    result_dict.append(
+                        {
+                            "time": time,
+                            "count": blob_count,
+                            "x": center_x,
+                            "y": center_y,
+                            "density": total_m,
+                            "density_ratio": ratio,
+                        }
+                    )
             if show_video:
                 cv2.imshow("frame", frame)
                 cv2.imshow("deteksi", frame_sum)
                 k = cv2.waitKey(1) & 0xFF
                 if k == 27:
                     break
-
+        self.result = result_dict
         cap.release()
         cv2.destroyAllWindows()
+
+    def save_result_to_file(self, save_path: str = None):
+        field_names = list(self.result[0].keys())
+        if not save_path:
+            save_path = (
+                "result_" + os.path.basename(self.file_name).split(".")[0] + ".csv"
+            )
+
+        with open(save_path, "w") as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=field_names)
+            writer.writeheader()
+            writer.writerows(self.result)
