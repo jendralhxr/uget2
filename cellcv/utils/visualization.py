@@ -44,9 +44,9 @@ def plot_1d(
     :param csv_path: Path to the CSV file.
     :param x_key: Name of the column to be used as the x-axis.
     :param y_key: Name of the column to be used as the y-axis.
-    :param winsize: Size of the moving window for smoothing the data. 
-    :param save_path: Optional path to save the plot as an image. 
-    :param show_result: Display the plot on the screen. 
+    :param winsize: Size of the moving window for smoothing the data.
+    :param save_path: Optional path to save the plot as an image.
+    :param show_result: Display the plot on the screen.
 
     :return: None
     """
