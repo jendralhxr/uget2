@@ -1,4 +1,4 @@
-# python -u trackandcount.py input.mp4 bg.png 0 24000000000000 log.csv uget.mp4 path.mp4 heatmap.mp4
+# python -u trackandcount.py input.mp4 bg.png 0 24000000000000 log.csv path.mp4 heatmap.mp4
 
 import numpy as np
 import math
@@ -29,13 +29,12 @@ writer = csv.writer(csvlog)
 header= ['framenum','count','motility']
 writer.writerow(header);
 
-vid_uget = cv.VideoWriter(sys.argv[6],cv.VideoWriter_fourcc(*'mp4v'), fps, [height, width])
-vid_path = cv.VideoWriter(sys.argv[6],cv.VideoWriter_fourcc(*'mp4v'), fps, [height, width])
-vid_heatmap = cv.VideoWriter(sys.argv[7],cv.VideoWriter_fourcc(*'mp4v'), fps, [height, width])
+vid_uget = cv.VideoWriter(sys.argv[6],cv.VideoWriter_fourcc(*'mp4v'), 30.0, (640, 480))
+#vid_heatmap = cv.VideoWriter(sys.argv[7],0, 60.0, (480, 640))
 
 # buat LOKA: needs to define the starting point more aesthetically
-TRACK_X= 100;
-TRACK_Y= 300;
+TRACK_X= 400;
+TRACK_Y= 90;
 
 def calculate_contour_distance(contour1, contour2): 
     x1, y1, w1, h1 = cv.boundingRect(contour1)
@@ -69,40 +68,31 @@ while (framenum<lastframe) and (framenum<frame_length-1):
     difference= cv.absdiff(current_gray, ref_gray)
     ret,thresh = cv.threshold(difference,0,255,cv.THRESH_TRIANGLE);
     cue = cv.bitwise_and(thresh, mask)
-    cue = cv.bitwise_and(cue, cv.bitwise_not(cue_prev))
     contours_cur,hierarchy = cv.findContours(cue, cv.RETR_LIST, cv.CHAIN_APPROX_NONE)
+    if (framenum==startframe):
+        contours_prev= contours_cur;
+    
     for c in contours_cur:
         cv.fillPoly(cue, pts=c, color=(255))
     
-    contours_motile= contours_cur
-    min_distance= 40;
-    min_idx= 0;
-    for i in range( len(contours_motile) ):
-        cnt= contours_motile[i]
+    for i in range( len(contours_cur) ):
+        cnt= contours_cur[i]
         M= cv.moments(cnt)
         if (M['m00']!=0):
             cx = int(M['m10']/M['m00'])
             cy = int(M['m01']/M['m00'])
-            distance= math.sqrt( pow((cx-TRACK_X),2) + pow((cy-TRACK_Y),2) );
-            if (distance<min_distance):
-                min_distance= distance;
-                min_idx= i;
-                xmin= cx;
-                ymin= cy;
-    if (min_idx!=0):
-        cv.rectangle(path, (xmin,ymin), (xmin+1, ymin+1), (0,255,0), 1)
-        TRACK_X= cx;
-        TRACK_Y= cy;
+            if (abs(cx-TRACK_X)<8) and (abs(cy-TRACK_Y)<8):
+                cv.rectangle(path, (cx,cy), (cx+1, cy+1), (0,255,0), 1)
+                TRACK_X= cx;
+                TRACK_Y= cy;
+                break;
         
     # cellcount from countour
-    print("{} {} {} {}".format(framenum, len(contours_cur), len(contours_motile), min_distance));
+    print("{} {} {} {} {}".format(framenum, len(contours_cur), len(contours_prev), TRACK_X, TRACK_Y));
     # buat RINO: do we need stuff like speed to express motility?
-    
     
         
     # heatmap
-    
-    
     
     
     # ----------- results
@@ -111,27 +101,21 @@ while (framenum<lastframe) and (framenum<frame_length-1):
     # writer.writerow(numlist);
     
     # VIDEO 
-    #render= cv.cvtColor(cue,cv.COLOR_GRAY2RGB)
-    #render= = cv.bitwise_and(render, path) 
-    #vid_uget.write(render)
-    
-    #overlay= = cv.bitwise_and(current_col, path) 
-    #overlay= cv.cvtColor(tee,cv.COLOR_GRAY2RGB)
-    #vid_path.write(overlay)
+    render= cv.cvtColor(cue,cv.COLOR_GRAY2BGR)
+    render= cv.bitwise_or(render, path) 
+    cv.rectangle(render, (TRACK_X,TRACK_Y), (TRACK_X+1, TRACK_Y+1), (0,0,255), 2)
+    vid_uget.write(render)
     
     contours_prev= contours_cur;
     framenum += 1
     
-    cv.imshow('all',cue)
-    cv.imshow('motile',path)
-    
-    k = cv.waitKey(1) & 0xFF
-    if k== 27: # esc
-       break
+    # cv.imshow('all',render)
+    # k = cv.waitKey(1) & 0xFF
+    # if k== 27: # esc
+       # break
 
     # GRAPHS
 
 cap.release
 vid_uget.release
-vid_path.release 
-vid_heatmap.release
+#vid_heatmap.release
