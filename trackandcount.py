@@ -1,4 +1,4 @@
-# python -u trackandcount.py input.mp4 bg.png 0 24000000000000 log.csv path.mp4 heatmap.mp4
+# python -u trackandcount.py input.mp4 bg.png 0 24000000000000 log.csv path.mp4 heatmap.mp4 startx starty
 
 import numpy as np
 import math
@@ -33,8 +33,8 @@ vid_uget = cv.VideoWriter(sys.argv[6],cv.VideoWriter_fourcc(*'mp4v'), 30.0, (640
 #vid_heatmap = cv.VideoWriter(sys.argv[7],0, 60.0, (480, 640))
 
 # buat LOKA: needs to define the starting point more aesthetically
-TRACK_X= 400;
-TRACK_Y= 90;
+TRACK_X= int(sys.argv[7]);
+TRACK_Y= int(sys.argv[8]);
 
 def calculate_contour_distance(contour1, contour2): 
     x1, y1, w1, h1 = cv.boundingRect(contour1)
@@ -81,7 +81,7 @@ while (framenum<lastframe) and (framenum<frame_length-1):
         if (M['m00']!=0):
             cx = int(M['m10']/M['m00'])
             cy = int(M['m01']/M['m00'])
-            if (abs(cx-TRACK_X)<8) and (abs(cy-TRACK_Y)<8):
+            if (abs(cx-TRACK_X)<12) and (abs(cy-TRACK_Y)<12):
                 cv.rectangle(path, (cx,cy), (cx+1, cy+1), (0,255,0), 1)
                 TRACK_X= cx;
                 TRACK_Y= cy;
