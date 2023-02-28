@@ -69,41 +69,30 @@ while (framenum<lastframe) and (framenum<frame_length-1):
     difference= cv.absdiff(current_gray, ref_gray)
     ret,thresh = cv.threshold(difference,0,255,cv.THRESH_TRIANGLE);
     cue = cv.bitwise_and(thresh, mask)
+    cue = cv.bitwise_and(cue, cv.bitwise_not(cue_prev))
     contours_cur,hierarchy = cv.findContours(cue, cv.RETR_LIST, cv.CHAIN_APPROX_NONE)
     for c in contours_cur:
         cv.fillPoly(cue, pts=c, color=(255))
     
-    # mask out still uget2
-    # for LOKA: is there any way to do such search faster?
-    # tee= cue.copy();
-    # if (framenum== startframe):
-        # contours_prev= contours_cur;
-    # still_uget=0;
-    # for i in range( len(contours_cur) ):
-        # for j in range (len(contours_prev) ):
-            # distance= calculate_contour_distance(contours_cur[i], contours_prev[j])
-            # if (distance<1.0):
-                # cv.fillPoly(tee, pts=contours_cur[i], color=(0))
-                # still_uget += 1;
-    
-    # motile uget2, selective tracking
-    #contours_motile,hierarchy = cv.findContours(tee, cv.RETR_LIST, cv.CHAIN_APPROX_NONE)
-    
     contours_motile= contours_cur
     min_distance= 40;
-    #min_idx= 0;
+    min_idx= 0;
     for i in range( len(contours_motile) ):
-        x,y,w,h = cv.boundingRect(contours_motile[i])
-        distance= math.sqrt( pow((x-TRACK_X),2) + pow((y-TRACK_Y),2) );
-        if (distance<min_distance):
-            min_distance= distance;
-            min_idx= i;
-            xmin= x;
-            ymin= y;
+        cnt= contours_motile[i]
+        M= cv.moments(cnt)
+        if (M['m00']!=0):
+            cx = int(M['m10']/M['m00'])
+            cy = int(M['m01']/M['m00'])
+            distance= math.sqrt( pow((cx-TRACK_X),2) + pow((cy-TRACK_Y),2) );
+            if (distance<min_distance):
+                min_distance= distance;
+                min_idx= i;
+                xmin= cx;
+                ymin= cy;
     if (min_idx!=0):
         cv.rectangle(path, (xmin,ymin), (xmin+1, ymin+1), (0,255,0), 1)
-        TRACK_X= x;
-        TRACK_Y= y;
+        TRACK_X= cx;
+        TRACK_Y= cy;
         
     # cellcount from countour
     print("{} {} {} {}".format(framenum, len(contours_cur), len(contours_motile), min_distance));
