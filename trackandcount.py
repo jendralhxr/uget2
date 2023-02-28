@@ -1,4 +1,4 @@
-# python -u trackandcount.py input.mp4 bg.png 24000000000000 log.csv output.mp4
+# python -u trackandcount.py input.mp4 bg.png 0 24000000000000 log.csv uget.mp4 path.mp4 heatmap.mp4
 
 import numpy as np
 import math
@@ -7,33 +7,34 @@ import sys
 import csv
 
 framenum= 0
-THRESH_VAL= 40
-STEP= 3
 
 cap = cv.VideoCapture(sys.argv[1])
-height = int(cap.get(cv.CAP_PROP_FRAME_WIDTH));
-width = int(cap.get(cv.CAP_PROP_FRAME_HEIGHT));
-fps = cap.get(cv2.CAP_PROP_FPS;
-vsize = (int(height/4), int(width/4))        
+width = int(cap.get(cv.CAP_PROP_FRAME_WIDTH));
+height = int(cap.get(cv.CAP_PROP_FRAME_HEIGHT));
+fps = cap.get(cv.CAP_PROP_FPS);
+frame_length = int(cap.get(cv.CAP_PROP_FRAME_COUNT))
+print("video is: {}x{} @{} {}".format(width, height, fps,  frame_length) )    
 
 ref_col= cv.imread(sys.argv[2])
-ref = cv.cvtColor(ref_col, cv.COLOR_BGR2GRAY)
+ref_gray = cv.cvtColor(ref_col, cv.COLOR_BGR2GRAY)
 
-lastframe= int(sys.argv[3])
-csvlog = open(sys.argv[4], 'w', newline='')
+startframe= int(sys.argv[3])
+cap.set(cv.CAP_PROP_POS_FRAMES, float(startframe))
+framenum= startframe;
+lastframe= int(sys.argv[4])
+
+csvlog = open(sys.argv[5], 'w', newline='')
 writer = csv.writer(csvlog)
-#----- need to define the columns
+# buat RINO: need to define the columns
 header= ['framenum','count','motility']
 writer.writerow(header);
 
-vidout = cv.VideoWriter(sys.argv[5],cv.VideoWriter_fourcc(*'mp4v'), fps, [height, width])
+vid_uget = cv.VideoWriter(sys.argv[6],cv.VideoWriter_fourcc(*'mp4v'), fps, [height, width])
+vid_path = cv.VideoWriter(sys.argv[6],cv.VideoWriter_fourcc(*'mp4v'), fps, [height, width])
+vid_heatmap = cv.VideoWriter(sys.argv[7],cv.VideoWriter_fourcc(*'mp4v'), fps, [height, width])
+
 #print(vidout.frameSize)
 
-# region of interest
-mask = np.zeros((width,height,1),np.uint8)
-# need interactive way to define the mask's countour
-contours = np.array([ [0,510], [0,790], [4096, 790], [4096, 510] ])
-cv.fillPoly(mask, pts =[contours], color=(0))
 
 def calculate_contour_distance(contour1, contour2): 
     x1, y1, w1, h1 = cv.boundingRect(contour1)
@@ -46,61 +47,72 @@ def calculate_contour_distance(contour1, contour2):
 
     return max(abs(c_x1 - c_x2) - (w1 + w2)/2, abs(c_y1 - c_y2) - (h1 + h2)/2)
 
+path = np.zeros([height, width, 3], dtype=np.uint8)
+pheromone = np.zeros([height, width, 1], dtype=np.double)
 
+mask = np.zeros([height, width, 1], dtype=np.uint8)
+mask= cv.bitwise_not(mask);
+# buat LOKA: need some interactive way to define the mask's countour
+#contours = np.array([ [300,200], [300,240], [640, 240], [640, 200] ])
+#cv.fillPoly(mask, pts =[contours], color=(0))
 
 
 #--- main routine
-
-
-
-while (framenum<lastframe):
-    ret, frame_col = cap.read()
-    frame = cv.cvtColor(frame_col, cv.COLOR_BGR2GRAY)
+while (framenum<lastframe) and (framenum<frame_length-1):
+    ret, current_col = cap.read()
+    current_gray = cv.cvtColor(current_col, cv.COLOR_BGR2GRAY)
     
     framenum += 1
     #print(ref.shape)
     
-    difference= cv.absdiff(ref, frame)
-    ret,thresh = cv.threshold(difference,THRESH_VAL,255,cv.THRESH_BINARY | cv.THRESH_OTSU);
+    difference= cv.absdiff(current_gray, ref_gray)
+    ret,thresh = cv.threshold(difference,0,255,cv.THRESH_TRIANGLE);
     cue = cv.bitwise_and(thresh, mask)
-    #dist = cv.distanceTransform(cue, cv.DIST_L2, 3)
+    contours,hierarchy = cv.findContours(cue, cv.RETR_LIST, cv.CHAIN_APPROX_TC89_L1)
+    
+    total_x= 0
+    total_y= 0
+    total_m= 0
+    
+    for c in contours:
+        cv.fillPoly(cue, pts=c, color=(255))
+    
+    # cellcount from countour
+    print(len(contours))
+    
+    # motility from correlation
+    
+    
+    # selective tracking
+    
+        
+    # heatmap
+    
+    
+    
+    
+    # ----------- results
+    # CSV
+    # numlist= [framenum, count, motility];
+    # writer.writerow(numlist);
+    
+    # VIDEO
+    # render= cv.cvtColor(cue,cv.COLOR_GRAY2RGB)
+    # render= = cv.bitwise_and(render, path) 
+    # vid_uget.write(render)
+    
+    # overlay= = cv.bitwise_and(current_col, path) 
+    # vid_path.write(overlay)
+    
+    
+    
+    cv.imshow('display',cue)
+    k = cv.waitKey(1) & 0xFF
+    if k== 27: # esc
+       break
 
-    # le fancy shaker filter
-    affineMat1 = np.float32([[1, 0, STEP], [0, 1, 0]])
-    shake1 = cv.warpAffine(cue, affineMat1, (height, width))
-    affineMat2 = np.float32([[1, 0, -STEP], [0, 1, 0]])
-    shake2 = cv.warpAffine(cue, affineMat2, (height, width))
-    affineMat3 = np.float32([[1, 0, 0], [0, 1, STEP]])
-    shake3 = cv.warpAffine(cue, affineMat3, (height, width))
-    affineMat4 = np.float32([[1, 0, 0], [0, 1, -STEP]])
-    shake4 = cv.warpAffine(cue, affineMat4, (height, width))
-    #print("cue-{} 1-{} 2-{} 3-{} 4-{}".format(cue.shape, shake1.shape, shake2.shape, shake3.shape, shake4.shape))   
-    cue = cv.bitwise_and(cue, shake1)
-    cue = cv.bitwise_and(cue, shake2)
-    cue = cv.bitwise_and(cue, shake3)
-    cue = cv.bitwise_and(cue, shake4)
-    
-    M = cv.moments(cue)
-    cX = int(M["m10"] / M["m00"])
-    cY = int(M["m01"] / M["m00"])
-    #print("{} {} {}: {} {} {}".format(framenum, cX, cY, M["m10"], M["m01"], M["m00"]))
-    if (framenum%100 == 0):
-        print("{} {} {}".format(framenum, cX, cY))
-    
-    
-    numlist= [framenum, cX, cY];
-    writer.writerow(numlist);
-    
-    # video output sometimes doesnt work on me
-    render = cv.cvtColor(cue,cv.COLOR_GRAY2RGB)
-    render = cv.circle(render, (cX, cY), 20, (255, 0, 0), 3)
-    #display=cv.resize(render, vsize, interpolation= cv.INTER_AREA)
-    vidout.write(render)
-    
-    #cv.imshow('display',display)
-    #k = cv.waitKey(1) & 0xFF
-    #if k== 27: # esc
-    #    break
+    # GRAPHS
 
 cap.release
-vidout.release 
+vid_path.release 
+vid_heatmap.release
