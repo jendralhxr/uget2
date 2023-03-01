@@ -35,6 +35,10 @@ vid_uget = cv.VideoWriter(sys.argv[6],cv.VideoWriter_fourcc(*'mp4v'), 30.0, (640
 # buat LOKA: needs to define the starting point more aesthetically
 TRACK_X= int(sys.argv[7]);
 TRACK_Y= int(sys.argv[8]);
+# buat LOKA: pheromone trail and evaporation coefficients
+COEF_EVAPORATE= 0.1
+COEF_TRAIL= 0.02
+
 
 def calculate_contour_distance(contour1, contour2): 
     x1, y1, w1, h1 = cv.boundingRect(contour1)
@@ -49,6 +53,8 @@ def calculate_contour_distance(contour1, contour2):
 
 path = np.zeros([height, width, 3], dtype=np.uint8)
 pheromone = np.zeros([height, width, 1], dtype=np.double)
+jo = np.ones([height, width, 1], dtype=np.double)
+
 
 mask = np.zeros([height, width, 1], dtype=np.uint8)
 mask= cv.bitwise_not(mask);
@@ -90,10 +96,11 @@ while (framenum<lastframe) and (framenum<frame_length-1):
     # cellcount from countour
     print("{} {} {} {} {}".format(framenum, len(contours_cur), len(contours_prev), TRACK_X, TRACK_Y));
     # buat RINO: do we need stuff like speed to express motility?
+    pheromone = pheromone * (cue/255) * COEF_TRAIL
+    pheromone = pheromone * (1-COEF_EVAPORATE)
     
-        
     # heatmap
-    
+    pheromone += 1;
     
     # ----------- results
     # CSV
