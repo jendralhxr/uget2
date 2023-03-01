@@ -96,11 +96,10 @@ while (framenum<lastframe) and (framenum<frame_length-1):
     # cellcount from countour
     print("{} {} {} {} {}".format(framenum, len(contours_cur), len(contours_prev), TRACK_X, TRACK_Y));
     # buat RINO: do we need stuff like speed to express motility?
-    pheromone = pheromone * (cue/255) * COEF_TRAIL
-    pheromone = pheromone * (1-COEF_EVAPORATE)
     
     # heatmap
-    pheromone += 1;
+    pheromone = pheromone * (cue/255) * COEF_TRAIL
+    pheromone = pheromone * (1-COEF_EVAPORATE)
     
     # ----------- results
     # CSV
