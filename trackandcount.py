@@ -35,9 +35,12 @@ vid_uget = cv.VideoWriter(sys.argv[6],cv.VideoWriter_fourcc(*'mp4v'), 30.0, (640
 # buat LOKA: needs to define the starting point more aesthetically
 TRACK_X= int(sys.argv[7]);
 TRACK_Y= int(sys.argv[8]);
+TRACK_HOP= 16;
+
 # buat LOKA: pheromone trail and evaporation coefficients
 COEF_EVAPORATE= 0.1
 COEF_TRAIL= 0.02
+COEF_SCALE= 1
 
 
 def calculate_contour_distance(contour1, contour2): 
@@ -53,8 +56,6 @@ def calculate_contour_distance(contour1, contour2):
 
 path = np.zeros([height, width, 3], dtype=np.uint8)
 pheromone = np.zeros([height, width, 1], dtype=np.double)
-pheromone_cur = np.zeros([height, width, 1], dtype=np.double)
-jo = np.ones([height, width, 1], dtype=np.double)
 
 
 mask = np.zeros([height, width, 1], dtype=np.uint8)
@@ -68,8 +69,6 @@ cue_prev= mask;
 while (framenum<lastframe) and (framenum<frame_length-1):
     ret, current_col = cap.read()
     current_gray = cv.cvtColor(current_col, cv.COLOR_BGR2GRAY)
-    
-    #print(ref.shape)
     
     # all uget2
     difference= cv.absdiff(current_gray, ref_gray)
@@ -88,7 +87,7 @@ while (framenum<lastframe) and (framenum<frame_length-1):
         if (M['m00']!=0):
             cx = int(M['m10']/M['m00'])
             cy = int(M['m01']/M['m00'])
-            if (abs(cx-TRACK_X)<12) and (abs(cy-TRACK_Y)<12):
+            if (abs(cx-TRACK_X)<TRACK_HOP) and (abs(cy-TRACK_Y)<TRACK_HOP):
                 cv.rectangle(path, (cx,cy), (cx+1, cy+1), (0,255,0), 1)
                 TRACK_X= cx;
                 TRACK_Y= cy;
@@ -99,8 +98,12 @@ while (framenum<lastframe) and (framenum<frame_length-1):
     # buat RINO: do we need stuff like speed to express motility?
     
     # heatmap
-    pheromone = np.add(pheromone, np.transpose(cue.astype(np.double)/255 * COEF_TRAIL))
-    pheromone = pheromone * (1-COEF_EVAPORATE)
+    #pheromone = np.add(pheromone, np.transpose(cue.astype(np.double)/255 * COEF_TRAIL))
+    #pheromone = pheromone * (1-COEF_EVAPORATE)
+    #heatmap= pheromone.astype(int)
+    #heatmap = cv.applyColorMap(heatmap, cv.COLORMAP_JET)
+    #heatmap = heatmap/255
+        
     
     # ----------- results
     # CSV
@@ -108,9 +111,11 @@ while (framenum<lastframe) and (framenum<frame_length-1):
     # writer.writerow(numlist);
     
     # VIDEO 
-    render= cv.cvtColor(cue,cv.COLOR_GRAY2BGR)
-    render= cv.bitwise_or(render, path) 
-    render= cv.bitwise_or(current_col, path) 
+    #render= cv.cvtColor(cue,cv.COLOR_GRAY2BGR)
+    #render= cv.bitwise_or(render, path) 
+    render= cv.bitwise_or(current_col, path)
+    #render= cv.bitwise_or(render, pheromone_show)
+    
     cv.rectangle(render, (TRACK_X,TRACK_Y), (TRACK_X+1, TRACK_Y+1), (0,0,255), 2)
     vid_uget.write(render)
     
