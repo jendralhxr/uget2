@@ -98,7 +98,7 @@ while (framenum<lastframe) and (framenum<frame_length-1):
     # buat RINO: do we need stuff like speed to express motility?
     
     # heatmap
-    pheromone = pheromone * (cue/255) * COEF_TRAIL
+    pheromone = pheromone * COEF_TRAIL
     pheromone = pheromone * (1-COEF_EVAPORATE)
     
     # ----------- results
@@ -109,16 +109,17 @@ while (framenum<lastframe) and (framenum<frame_length-1):
     # VIDEO 
     render= cv.cvtColor(cue,cv.COLOR_GRAY2BGR)
     render= cv.bitwise_or(render, path) 
+    render= cv.bitwise_or(current_col, path) 
     cv.rectangle(render, (TRACK_X,TRACK_Y), (TRACK_X+1, TRACK_Y+1), (0,0,255), 2)
     vid_uget.write(render)
     
     contours_prev= contours_cur;
     framenum += 1
     
-    # cv.imshow('all',render)
-    # k = cv.waitKey(1) & 0xFF
-    # if k== 27: # esc
-       # break
+    cv.imshow('all',render)
+    k = cv.waitKey(1) & 0xFF
+    if k== 27: # esc
+       break
 
     # GRAPHS
 
