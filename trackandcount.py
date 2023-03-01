@@ -53,6 +53,7 @@ def calculate_contour_distance(contour1, contour2):
 
 path = np.zeros([height, width, 3], dtype=np.uint8)
 pheromone = np.zeros([height, width, 1], dtype=np.double)
+pheromone_cur = np.zeros([height, width, 1], dtype=np.double)
 jo = np.ones([height, width, 1], dtype=np.double)
 
 
@@ -98,7 +99,7 @@ while (framenum<lastframe) and (framenum<frame_length-1):
     # buat RINO: do we need stuff like speed to express motility?
     
     # heatmap
-    pheromone = pheromone * COEF_TRAIL
+    pheromone = np.add(pheromone, np.transpose(cue.astype(np.double)/255 * COEF_TRAIL))
     pheromone = pheromone * (1-COEF_EVAPORATE)
     
     # ----------- results
