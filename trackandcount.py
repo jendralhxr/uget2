@@ -78,9 +78,18 @@ while (framenum<lastframe) and (framenum<frame_length-1):
     contours_cur,hierarchy = cv.findContours(cue, cv.RETR_LIST, cv.CHAIN_APPROX_NONE)
     if (framenum==startframe):
         contours_prev= contours_cur;
-    
     for c in contours_cur:
         cv.fillPoly(cue, pts=c, color=(255))
+    
+    # for LOKA: is there any way to do such search faster?
+    still_uget=0;
+    for i in range( len(contours_cur) ):
+        for j in range (len(contours_prev) ):
+            distance= calculate_contour_distance(contours_cur[i], contours_prev[j])
+            if (distance<1.0):
+                cv.fillPoly(cue, pts=contours_cur[i], color=(50))
+                still_uget += 1;
+                break
     
     # tracking
     for i in range( len(contours_cur) ):
@@ -99,7 +108,7 @@ while (framenum<lastframe) and (framenum<frame_length-1):
     
     
     # cellcount from countour
-    print("{} {} {} {} {}".format(framenum, len(contours_cur), len(contours_prev), TRACK_X, TRACK_Y));
+    print("{} {} {} {} {}".format(framenum, len(contours_cur), still_uget, TRACK_X, TRACK_Y));
     # buat RINO: do we need stuff like speed to express motility?
     
     
@@ -118,9 +127,10 @@ while (framenum<lastframe) and (framenum<frame_length-1):
     # writer.writerow(numlist);
     
     # VIDEO 
-    #render= cv.cvtColor(cue,cv.COLOR_GRAY2BGR)
-    #render= cv.bitwise_or(render, path) 
-    render= cv.bitwise_or(current_col, path)
+    render= cv.cvtColor(cue,cv.COLOR_GRAY2BGR)
+    render= cv.bitwise_or(render, path) 
+    
+    #render= cv.bitwise_or(current_col, path)
     cv.rectangle(render, (TRACK_X,TRACK_Y), (TRACK_X+1, TRACK_Y+1), (0,0,255), 2)
     vid_uget.write(render)
     #render= cv.bitwise_or(render, pheromone_show)
