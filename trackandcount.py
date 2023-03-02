@@ -84,13 +84,13 @@ while (framenum<lastframe) and (framenum<frame_length-1):
     
     # for LOKA: is there any way to do such search faster?
     still_uget=0;
-    for i in range( len(contours_cur) ):
-        for j in range (len(contours_prev) ):
-            distance= calculate_contour_distance(contours_cur[i], contours_prev[j])
-            if (distance<1.0):
-                cv.fillPoly(cue, pts=contours_cur[i], color=(50))
-                still_uget += 1;
-                break
+    # for i in range( len(contours_cur) ):
+        # for j in range (len(contours_prev) ):
+            # distance= calculate_contour_distance(contours_cur[i], contours_prev[j])
+            # if (distance<1.0):
+                # cv.fillPoly(cue, pts=contours_cur[i], color=(50))
+                # still_uget += 1;
+                # break
     
     # tracking
     for i in range( len(contours_cur) ):
@@ -100,7 +100,7 @@ while (framenum<lastframe) and (framenum<frame_length-1):
             cx = int(M['m10']/M['m00'])
             cy = int(M['m01']/M['m00'])
             if (abs(cx-TRACK_X)<TRACK_HOP) and (abs(cy-TRACK_Y)<TRACK_HOP):
-                cv.line(path, (TRACK_X,TRACK_Y), (cx, cy), (0,255,0), 1)
+                cv.line(path, (TRACK_X,TRACK_Y), (cx, cy), (0,255,0), 2)
                 cv.rectangle(path, (cx,cy), (cx+1, cy+1), (0,255,0), 2)
                 TRACK_X= cx;
                 TRACK_Y= cy;
