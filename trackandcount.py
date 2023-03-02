@@ -38,9 +38,8 @@ TRACK_Y= int(sys.argv[8]);
 TRACK_HOP= 16;
 
 # buat LOKA: pheromone trail and evaporation coefficients
-COEF_EVAPORATE= 0.1
-COEF_TRAIL= 0.02
-COEF_SCALE= 1
+COEF_EVAPORATE= 1
+COEF_TRAIL= 8
 COEF_PATH_FADE= 1
 
 def calculate_contour_distance(contour1, contour2): 
@@ -56,10 +55,12 @@ def calculate_contour_distance(contour1, contour2):
 
 path = np.zeros([height, width, 3], dtype=np.uint8)
 path1 = np.ones([height, width, 3], dtype=np.uint8)
-pheromone = np.zeros([height, width, 1], dtype=np.double)
 
+pheromone = np.zeros([height, width], dtype=np.uint8)
+ph1 = np.ones([height, width], dtype=np.uint8)
 
 mask = np.zeros([height, width, 1], dtype=np.uint8)
+
 mask= cv.bitwise_not(mask);
 # buat LOKA: need some interactive way to define the mask's countour
 contours = np.array([ [640,150], [400,200], [380, 290], [640, 235] ]) # 8879
@@ -106,20 +107,16 @@ while (framenum<lastframe) and (framenum<frame_length-1):
                 break;
     path= path - (COEF_PATH_FADE*path1).clip(None, path)
     
-    
     # cellcount from countour
     print("{} {} {} {} {}".format(framenum, len(contours_cur), still_uget, TRACK_X, TRACK_Y));
     # buat RINO: do we need stuff like speed to express motility?
     
-    
-    
     # heatmap
-    #pheromone = np.add(pheromone, np.transpose(cue.astype(np.double)/255 * COEF_TRAIL))
-    #pheromone = pheromone * (1-COEF_EVAPORATE)
-    #heatmap= pheromone.astype(int)
-    #heatmap = cv.applyColorMap(heatmap, cv.COLORMAP_JET)
-    #heatmap = heatmap/255
-        
+    ret,th1 = cv.threshold(cue,2,1,cv.THRESH_BINARY)
+    pheromone = np.add(pheromone, th1*COEF_TRAIL)
+    pheromone= pheromone- (COEF_EVAPORATE*ph1).clip(None, pheromone)
+    
+    heatmap = cv.applyColorMap(pheromone, cv.COLORMAP_PARULA)
     
     # ----------- results
     # CSV
@@ -129,9 +126,11 @@ while (framenum<lastframe) and (framenum<frame_length-1):
     # VIDEO 
     render= cv.cvtColor(cue,cv.COLOR_GRAY2BGR)
     render= cv.bitwise_or(render, path) 
-    
-    #render= cv.bitwise_or(current_col, path)
     cv.rectangle(render, (TRACK_X,TRACK_Y), (TRACK_X+1, TRACK_Y+1), (0,0,255), 2)
+    
+    impose= cv.bitwise_or(current_col, path)
+    cv.rectangle(impose, (TRACK_X,TRACK_Y), (TRACK_X+1, TRACK_Y+1), (0,0,255), 2)
+        
     vid_uget.write(render)
     #render= cv.bitwise_or(render, pheromone_show)
     
@@ -139,7 +138,9 @@ while (framenum<lastframe) and (framenum<frame_length-1):
     contours_prev= contours_cur;
     framenum += 1
     
-    cv.imshow('all',render)
+    cv.imshow('cue',render)
+    cv.imshow('imposed',impose)
+    cv.imshow('heatmap',heatmap)
     k = cv.waitKey(1) & 0xFF
     if k== 27: # esc
        break
