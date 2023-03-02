@@ -41,7 +41,7 @@ TRACK_HOP= 16;
 COEF_EVAPORATE= 0.1
 COEF_TRAIL= 0.02
 COEF_SCALE= 1
-
+COEF_PATH_FADE= 1
 
 def calculate_contour_distance(contour1, contour2): 
     x1, y1, w1, h1 = cv.boundingRect(contour1)
@@ -55,6 +55,7 @@ def calculate_contour_distance(contour1, contour2):
     return max(abs(c_x1 - c_x2) - (w1 + w2)/2, abs(c_y1 - c_y2) - (h1 + h2)/2)
 
 path = np.zeros([height, width, 3], dtype=np.uint8)
+path1 = np.ones([height, width, 3], dtype=np.uint8)
 pheromone = np.zeros([height, width, 1], dtype=np.double)
 
 
@@ -81,6 +82,7 @@ while (framenum<lastframe) and (framenum<frame_length-1):
     for c in contours_cur:
         cv.fillPoly(cue, pts=c, color=(255))
     
+    # tracking
     for i in range( len(contours_cur) ):
         cnt= contours_cur[i]
         M= cv.moments(cnt)
@@ -88,14 +90,19 @@ while (framenum<lastframe) and (framenum<frame_length-1):
             cx = int(M['m10']/M['m00'])
             cy = int(M['m01']/M['m00'])
             if (abs(cx-TRACK_X)<TRACK_HOP) and (abs(cy-TRACK_Y)<TRACK_HOP):
-                cv.rectangle(path, (cx,cy), (cx+1, cy+1), (0,255,0), 1)
+                cv.line(path, (TRACK_X,TRACK_Y), (cx, cy), (0,255,0), 1)
+                cv.rectangle(path, (cx,cy), (cx+1, cy+1), (0,255,0), 2)
                 TRACK_X= cx;
                 TRACK_Y= cy;
                 break;
-        
+    path= path - (COEF_PATH_FADE*path1).clip(None, path)
+    
+    
     # cellcount from countour
     print("{} {} {} {} {}".format(framenum, len(contours_cur), len(contours_prev), TRACK_X, TRACK_Y));
     # buat RINO: do we need stuff like speed to express motility?
+    
+    
     
     # heatmap
     #pheromone = np.add(pheromone, np.transpose(cue.astype(np.double)/255 * COEF_TRAIL))
@@ -114,10 +121,10 @@ while (framenum<lastframe) and (framenum<frame_length-1):
     #render= cv.cvtColor(cue,cv.COLOR_GRAY2BGR)
     #render= cv.bitwise_or(render, path) 
     render= cv.bitwise_or(current_col, path)
-    #render= cv.bitwise_or(render, pheromone_show)
-    
     cv.rectangle(render, (TRACK_X,TRACK_Y), (TRACK_X+1, TRACK_Y+1), (0,0,255), 2)
     vid_uget.write(render)
+    #render= cv.bitwise_or(render, pheromone_show)
+    
     
     contours_prev= contours_cur;
     framenum += 1
