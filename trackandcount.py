@@ -73,7 +73,7 @@ mask = np.zeros([height, width, 1], dtype=np.uint8)
 
 mask= cv.bitwise_not(mask);
 # buat LOKA: need some interactive way to define the mask's countour
-contours = np.array([ [640,150], [400,200], [380, 290], [640, 235] ]) # 8879
+contours = np.array([ [640,140], [315,220], [320, 300], [640, 230] ]) # 8879
 cv.fillPoly(mask, pts =[contours], color=(0))
 cue_prev= mask;
 
@@ -169,5 +169,6 @@ while (framenum<lastframe) and (framenum<frame_length-1):
     # GRAPHS
 
 cap.release
-vid_uget.release
-#vid_heatmap.release
+vid_cue.release
+vid_overlay.release
+vid_heatmap.release
