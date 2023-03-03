@@ -1,4 +1,4 @@
-# python -u trackandcount.py input.mp4 bg.png 0 24000000000000 log.csv path.mp4 heatmap.mp4 startx starty
+# python -u trackandcount.py input.mp4 bg.png 0 24000000000000 log.csv cue.mp4 output.mp4 heatmap.mp4 [startx starty]...
 
 import numpy as np
 import math
@@ -13,7 +13,7 @@ width = int(cap.get(cv.CAP_PROP_FRAME_WIDTH));
 height = int(cap.get(cv.CAP_PROP_FRAME_HEIGHT));
 fps = cap.get(cv.CAP_PROP_FPS);
 frame_length = int(cap.get(cv.CAP_PROP_FRAME_COUNT))
-print("video is: {}x{} @{} {}".format(width, height, fps,  frame_length) )    
+print("input video is: {}x{} @{} {}".format(width, height, fps,  frame_length) )    
 
 ref_col= cv.imread(sys.argv[2])
 ref_gray = cv.cvtColor(ref_col, cv.COLOR_BGR2GRAY)
@@ -29,18 +29,28 @@ writer = csv.writer(csvlog)
 header= ['framenum','count','motility']
 writer.writerow(header);
 
-vid_uget = cv.VideoWriter(sys.argv[6],cv.VideoWriter_fourcc(*'mp4v'), 30.0, (640, 480))
-#vid_heatmap = cv.VideoWriter(sys.argv[7],0, 60.0, (480, 640))
+vid_cue = cv.VideoWriter(sys.argv[6],cv.VideoWriter_fourcc(*'mp4v'), fps, (640, 480))
+vid_overlay = cv.VideoWriter(sys.argv[7],cv.VideoWriter_fourcc(*'mp4v'), fps, (640, 480))
+vid_heatmap = cv.VideoWriter(sys.argv[8],cv.VideoWriter_fourcc(*'mp4v'), fps, (640, 480))
 
 # buat LOKA: needs to define the starting point more aesthetically
-TRACK_X= int(sys.argv[7]);
-TRACK_Y= int(sys.argv[8]);
+
+trackers_count= int((len(sys.argv)-9)/2)
+trackx = np.zeros(trackers_count, dtype=np.uint16)
+tracky = np.zeros(trackers_count, dtype=np.uint16)
+for i in range(trackers_count):
+    trackx[i]= int(sys.argv[2*i +9])
+    tracky[i]= int(sys.argv[2*i +10])
+    print("tracker{}: {} {}".format(i, trackx[i], tracky[i]))
+
 TRACK_HOP= 16;
 
 # buat LOKA: pheromone trail and evaporation coefficients
 COEF_EVAPORATE= 1
-COEF_TRAIL= 8
+COEF_TRAIL= 3
 COEF_PATH_FADE= 1
+
+COLOR=([255,0,0], [0,255,0], [0,0,255], [255,255,0], [255,0,255], [0,255,255])
 
 def calculate_contour_distance(contour1, contour2): 
     x1, y1, w1, h1 = cv.boundingRect(contour1)
@@ -93,47 +103,58 @@ while (framenum<lastframe) and (framenum<frame_length-1):
                 # break
     
     # tracking
-    for i in range( len(contours_cur) ):
-        cnt= contours_cur[i]
-        M= cv.moments(cnt)
-        if (M['m00']!=0):
-            cx = int(M['m10']/M['m00'])
-            cy = int(M['m01']/M['m00'])
-            if (abs(cx-TRACK_X)<TRACK_HOP) and (abs(cy-TRACK_Y)<TRACK_HOP):
-                cv.line(path, (TRACK_X,TRACK_Y), (cx, cy), (0,255,0), 2)
-                cv.rectangle(path, (cx,cy), (cx+1, cy+1), (0,255,0), 2)
-                TRACK_X= cx;
-                TRACK_Y= cy;
-                break;
+    for t in range(trackers_count):
+        for i in range( len(contours_cur) ):
+            cnt= contours_cur[i]
+            M= cv.moments(cnt)
+            if (M['m00']!=0):
+                cx = int(M['m10']/M['m00'])
+                cy = int(M['m01']/M['m00'])
+                if (abs(cx-trackx[t])<TRACK_HOP) and (abs(cy-tracky[t])<TRACK_HOP):
+                    cv.line(path, (trackx[t],tracky[t]), (cx, cy), COLOR[t%6], 2)
+                    cv.circle(path, (cx,cy), 1, COLOR[t%6], 2)
+                    trackx[t]= cx;
+                    tracky[t]= cy;
+                    break;
+        #print("tracker{}: {} {}".format(t, trackx[t], tracky[t]))
+
     path= path - (COEF_PATH_FADE*path1).clip(None, path)
     
-    # cellcount from countour
-    print("{} {} {} {} {}".format(framenum, len(contours_cur), still_uget, TRACK_X, TRACK_Y));
-    # buat RINO: do we need stuff like speed to express motility?
     
     # heatmap
-    ret,th1 = cv.threshold(cue,2,1,cv.THRESH_BINARY)
-    pheromone = np.add(pheromone, th1*COEF_TRAIL)
+    ret,th1 = cv.threshold(cue,10,1,cv.THRESH_BINARY)
+    pheromone = np.add(pheromone.clip(None, 255-COEF_TRAIL), th1*COEF_TRAIL)
     pheromone= pheromone- (COEF_EVAPORATE*ph1).clip(None, pheromone)
     
     heatmap = cv.applyColorMap(pheromone, cv.COLORMAP_PARULA)
     
     # ----------- results
+    
+    # cellcount from countour
+    print("{} {} {}".format(framenum, len(contours_cur), still_uget));
+    # buat RINO: do we need stuff like speed to express motility?
     # CSV
-    # numlist= [framenum, count, motility];
-    # writer.writerow(numlist);
+    numlist= [framenum, len(contours_cur), still_uget];
+    for i in range(trackers_count):
+        numlist.append([trackx[i], tracky[i]])
+    writer.writerow(numlist);
     
     # VIDEO 
+    # cue
     render= cv.cvtColor(cue,cv.COLOR_GRAY2BGR)
     render= cv.bitwise_or(render, path) 
-    cv.rectangle(render, (TRACK_X,TRACK_Y), (TRACK_X+1, TRACK_Y+1), (0,0,255), 2)
+    for i in range(trackers_count):
+        cv.circle(render, (trackx[i],tracky[i]), 1, (0,0,255), 2)
+    vid_cue.write(render);
     
+    # imposed on input
     impose= cv.bitwise_or(current_col, path)
-    cv.rectangle(impose, (TRACK_X,TRACK_Y), (TRACK_X+1, TRACK_Y+1), (0,0,255), 2)
-        
-    vid_uget.write(render)
-    #render= cv.bitwise_or(render, pheromone_show)
+    for i in range(trackers_count):
+        cv.circle(impose, (trackx[i],tracky[i]), 1, (0,0,255), 2)
+    vid_overlay.write(impose);
     
+    # heatmap
+    vid_heatmap.write(heatmap);
     
     contours_prev= contours_cur;
     framenum += 1
