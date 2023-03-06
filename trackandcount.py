@@ -136,7 +136,7 @@ while (framenum<lastframe) and (framenum<frame_length-1):
     # CSV
     numlist= [framenum, len(contours_cur), still_uget];
     for i in range(trackers_count):
-        numlist.append([trackx[i], tracky[i]])
+        numlist.append("{} {}".format(trackx[i], tracky[i]))
     writer.writerow(numlist);
     
     # VIDEO 
