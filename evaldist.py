@@ -15,14 +15,14 @@ width = int(cap.get(cv.CAP_PROP_FRAME_WIDTH));
 height = int(cap.get(cv.CAP_PROP_FRAME_HEIGHT));
 fps = cap.get(cv.CAP_PROP_FPS);
 frame_length = int(cap.get(cv.CAP_PROP_FRAME_COUNT))
-print("input video is: {}x{} @{} {}".format(width, height, fps,  frame_length) )    
+print("input video is: {}x{} @{} {}".format(width, height, fps,  frame_length) )
 # seek to frame
 cap.set(cv.CAP_PROP_POS_FRAMES, float(framenum))
 
 mask = np.zeros([height, width, 1], dtype=np.uint8)
 mask= cv.bitwise_not(mask);
 # buat LOKA: need some interactive way to define the mask's countour
-contours = np.array([ [640,140], [315,220], [320, 300], [640, 230] ]) # 8879
+contours = np.array([ [640,130], [315,200], [335,250], [400, 278], [640, 230] ]) # 8879
 cv.fillPoly(mask, pts =[contours], color=(0))
 cue_prev= mask;
 
@@ -33,10 +33,16 @@ ref_col= cv.imread(sys.argv[2])
 ref_gray = cv.cvtColor(ref_col, cv.COLOR_BGR2GRAY)
 ret, current_col = cap.read()
 current_gray = cv.cvtColor(current_col, cv.COLOR_BGR2GRAY)
+
+filename= str(framenum) + "s.png"
+print(filename)
+cv.imwrite(filename, current_col);
+
     
 # all uget2
 difference= cv.absdiff(current_gray, ref_gray)
 ret,thresh = cv.threshold(difference,0,255,cv.THRESH_TRIANGLE);
+#ret,thresh = cv.threshold(difference,15,255,cv.THRESH_BINARY)
 cue = cv.bitwise_and(thresh, mask)
 contours_cur,hierarchy = cv.findContours(cue, cv.RETR_LIST, cv.CHAIN_APPROX_NONE)
 
