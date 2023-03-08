@@ -47,8 +47,10 @@ TRACK_HOP= 16;
 
 # buat LOKA: pheromone trail and evaporation coefficients
 COEF_EVAPORATE= 1
-COEF_TRAIL= 3
+COEF_TRAIL= 6
 COEF_PATH_FADE= 1
+COEF_SMEAR= 2
+DIST_SMEAR= 1
 
 COLOR=([255,0,0], [0,255,0], [0,0,255], [255,255,0], [255,0,255], [0,255,255])
 
@@ -123,6 +125,18 @@ while (framenum<lastframe) and (framenum<frame_length-1):
     
     # heatmap
     ret,th1 = cv.threshold(cue,10,1,cv.THRESH_BINARY)
+    affineMat1 = np.float32([[1, 0, DIST_SMEAR], [0, 1, 0]])
+    shake1 = cv.warpAffine(cue, affineMat1, (height, width))
+    affineMat2 = np.float32([[1, 0, -DIST_SMEAR], [0, 1, 0]])
+    shake2 = cv.warpAffine(cue, affineMat2, (height, width))
+    affineMat3 = np.float32([[1, 0, 0], [0, 1, DIST_SMEAR]])
+    shake3 = cv.warpAffine(cue, affineMat3, (height, width))
+    affineMat4 = np.float32([[1, 0, 0], [0, 1, -DIST_SMEAR]])
+    shake4 = cv.warpAffine(cue, affineMat4, (height, width))
+    pheromone = np.add(pheromone.clip(None, 255-COEF_SMEAR), shake1*COEF_SMEAR)
+    pheromone = np.add(pheromone.clip(None, 255-COEF_SMEAR), shake2*COEF_SMEAR)
+    pheromone = np.add(pheromone.clip(None, 255-COEF_SMEAR), shake3*COEF_SMEAR)
+    pheromone = np.add(pheromone.clip(None, 255-COEF_SMEAR), shake4*COEF_SMEAR)
     pheromone = np.add(pheromone.clip(None, 255-COEF_TRAIL), th1*COEF_TRAIL)
     pheromone= pheromone- (COEF_EVAPORATE*ph1).clip(None, pheromone)
     
