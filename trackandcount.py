@@ -41,6 +41,8 @@ tracky = np.zeros(trackers_count, dtype=np.uint16)
 for i in range(trackers_count):
     trackx[i]= int(sys.argv[2*i +9])
     tracky[i]= int(sys.argv[2*i +10])
+    trackx_init[i]= trackx[i]
+    tracky_init[i]= tracky[i]
     print("tracker{}: {} {}".format(i, trackx[i], tracky[i]))
 
 TRACK_HOP= 16;
@@ -181,6 +183,10 @@ while (framenum<lastframe) and (framenum<frame_length-1):
        break
 
     # GRAPHS
+
+for t in range(trackers_count):
+    cv.arrowedLine(impose, (trackx_init[t], tracky_init[t]), (trackx[t], tracky[t]), (0, 0, 255), 4);
+cv.imwrite("final.png", impose)
 
 cap.release
 vid_cue.release
