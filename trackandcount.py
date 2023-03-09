@@ -1,4 +1,4 @@
-# python -u trackandcount.py input.mp4 bg.png 0 24000000000000 log.csv cue.mp4 output.mp4 heatmap.mp4 [startx starty]...
+# python -u trackandcount.py input.mp4 bg.png 0 24000000000000 log.csv cue.mp4 output.mp4 heatmap.mp4 arrow.png [startx starty]...
 
 import numpy as np
 import math
@@ -36,14 +36,14 @@ vid_heatmap = cv.VideoWriter(sys.argv[8],cv.VideoWriter_fourcc(*'mp4v'), fps, (6
 
 # buat LOKA: needs to define the starting point more aesthetically
 
-trackers_count= int((len(sys.argv)-9)/2)
+trackers_count= int((len(sys.argv)-10)/2)
 trackx = np.zeros(trackers_count, dtype=np.uint16)
 tracky = np.zeros(trackers_count, dtype=np.uint16)
 trackx_init = np.zeros(trackers_count, dtype=np.uint16)
 tracky_init = np.zeros(trackers_count, dtype=np.uint16)
 for i in range(trackers_count):
-    trackx[i]= int(sys.argv[2*i +9])
-    tracky[i]= int(sys.argv[2*i +10])
+    trackx[i]= int(sys.argv[2*i +10])
+    tracky[i]= int(sys.argv[2*i +11])
     trackx_init[i]= trackx[i]
     tracky_init[i]= tracky[i]
     print("tracker{}: {} {}".format(i, trackx[i], tracky[i]))
@@ -51,10 +51,12 @@ for i in range(trackers_count):
 TRACK_HOP= 16;
 
 # buat LOKA: pheromone trail and evaporation coefficients
-COEF_EVAPORATE= 2
-COEF_TRAIL= 6
+# tracking trail
 COEF_PATH_FADE= 1
-COEF_SMEAR= 2
+# heatmap
+COEF_EVAPORATE= 1
+COEF_TRAIL= 8
+COEF_SMEAR= 6
 DIST_SMEAR= 1
 
 COLOR=([255,0,0], [0,255,0], [0,0,255], [255,255,0], [255,0,255], [0,255,255])
@@ -130,18 +132,33 @@ while (framenum<lastframe) and (framenum<frame_length-1):
     
     # heatmap
     ret,th1 = cv.threshold(cue,10,1,cv.THRESH_BINARY)
+    
+    smear = np.zeros([height, width], dtype=np.uint8)
     affineMat1 = np.float32([[1, 0, DIST_SMEAR], [0, 1, 0]])
-    shake1 = cv.warpAffine(th1, affineMat1, (width, height))
     affineMat2 = np.float32([[1, 0, -DIST_SMEAR], [0, 1, 0]])
-    shake2 = cv.warpAffine(th1, affineMat2, (width, height))
     affineMat3 = np.float32([[1, 0, 0], [0, 1, DIST_SMEAR]])
-    shake3 = cv.warpAffine(th1, affineMat3, (width, height))
     affineMat4 = np.float32([[1, 0, 0], [0, 1, -DIST_SMEAR]])
+    affineMat5 = np.float32([[1, 0, DIST_SMEAR],  [0, 1, DIST_SMEAR]])
+    affineMat6 = np.float32([[1, 0, -DIST_SMEAR], [0, 1, -DIST_SMEAR]])
+    affineMat7 = np.float32([[1, 0, -DIST_SMEAR], [0, 1, DIST_SMEAR]])
+    affineMat8 = np.float32([[1, 0, DIST_SMEAR], [0, 1, -DIST_SMEAR]])
+    shake1 = cv.warpAffine(th1, affineMat1, (width, height))
+    shake2 = cv.warpAffine(th1, affineMat2, (width, height))
+    shake3 = cv.warpAffine(th1, affineMat3, (width, height))
     shake4 = cv.warpAffine(th1, affineMat4, (width, height))
-    pheromone = np.add(pheromone.clip(None, 255-COEF_SMEAR), shake1*COEF_SMEAR)
-    pheromone = np.add(pheromone.clip(None, 255-COEF_SMEAR), shake2*COEF_SMEAR)
-    pheromone = np.add(pheromone.clip(None, 255-COEF_SMEAR), shake3*COEF_SMEAR)
-    pheromone = np.add(pheromone.clip(None, 255-COEF_SMEAR), shake4*COEF_SMEAR)
+    shake5 = cv.warpAffine(th1, affineMat1, (width, height))
+    shake6 = cv.warpAffine(th1, affineMat2, (width, height))
+    shake7 = cv.warpAffine(th1, affineMat3, (width, height))
+    shake8 = cv.warpAffine(th1, affineMat4, (width, height))
+    smear=cv.bitwise_or(smear, shake1) 
+    smear=cv.bitwise_or(smear, shake2) 
+    smear=cv.bitwise_or(smear, shake3) 
+    smear=cv.bitwise_or(smear, shake4) 
+    smear=cv.bitwise_or(smear, shake5) 
+    smear=cv.bitwise_or(smear, shake6) 
+    smear=cv.bitwise_or(smear, shake7) 
+    smear=cv.bitwise_or(smear, shake8) 
+    pheromone = np.add(pheromone.clip(None, 255-COEF_SMEAR), smear*COEF_SMEAR)
     pheromone = np.add(pheromone.clip(None, 255-COEF_TRAIL), th1*COEF_TRAIL)
     pheromone= pheromone- (COEF_EVAPORATE*ph1).clip(None, pheromone)
     
@@ -178,17 +195,17 @@ while (framenum<lastframe) and (framenum<frame_length-1):
     contours_prev= contours_cur;
     framenum += 1
     
-    # cv.imshow('cue',render)
-    # cv.imshow('imposed',impose)
-    # cv.imshow('heatmap',heatmap)
-    # k = cv.waitKey(1) & 0xFF
-    # if k== 27: # esc
-       # break
+    cv.imshow('cue',render)
+    cv.imshow('imposed',impose)
+    cv.imshow('heatmap',heatmap)
+    k = cv.waitKey(1) & 0xFF
+    if k== 27: # esc
+       break
 
     # GRAPHS
 
 for t in range(trackers_count):
-    cv.arrowedLine(impose, (trackx_init[t], tracky_init[t]), (trackx[t], tracky[t]), COLOR[t%6], 2, tipLength=0.04 )
+    cv.arrowedLine(impose, (trackx_init[t], tracky_init[t]), (trackx[t], tracky[t]), COLOR[t%6], 1, tipLength=0.04 )
     
 cv.imwrite("final.png", impose)
 
