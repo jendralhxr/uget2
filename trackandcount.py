@@ -51,10 +51,10 @@ for i in range(trackers_count):
 TRACK_HOP= 16;
 
 # buat LOKA: pheromone trail and evaporation coefficients
-COEF_EVAPORATE= 1
-COEF_TRAIL= 4
+COEF_EVAPORATE= 2
+COEF_TRAIL= 6
 COEF_PATH_FADE= 1
-COEF_SMEAR= 1
+COEF_SMEAR= 2
 DIST_SMEAR= 1
 
 COLOR=([255,0,0], [0,255,0], [0,0,255], [255,255,0], [255,0,255], [0,255,255])
@@ -178,17 +178,18 @@ while (framenum<lastframe) and (framenum<frame_length-1):
     contours_prev= contours_cur;
     framenum += 1
     
-    cv.imshow('cue',render)
-    cv.imshow('imposed',impose)
-    cv.imshow('heatmap',heatmap)
-    k = cv.waitKey(1) & 0xFF
-    if k== 27: # esc
-       break
+    # cv.imshow('cue',render)
+    # cv.imshow('imposed',impose)
+    # cv.imshow('heatmap',heatmap)
+    # k = cv.waitKey(1) & 0xFF
+    # if k== 27: # esc
+       # break
 
     # GRAPHS
 
 for t in range(trackers_count):
-    cv.arrowedLine(impose, (trackx_init[t], tracky_init[t]), (trackx[t], tracky[t]), COLOR[t], 1);
+    cv.arrowedLine(impose, (trackx_init[t], tracky_init[t]), (trackx[t], tracky[t]), COLOR[t%6], 2, tipLength=0.04 )
+    
 cv.imwrite("final.png", impose)
 
 cap.release
