@@ -103,13 +103,13 @@ while (framenum<lastframe) and (framenum<frame_length-1):
     
     # for LOKA: is there any way to do such search faster?
     still_uget=0;
-    # for i in range( len(contours_cur) ):
-        # for j in range (len(contours_prev) ):
-            # distance= calculate_contour_distance(contours_cur[i], contours_prev[j])
-            # if (distance<1.0):
-                # cv.fillPoly(cue, pts=contours_cur[i], color=(50))
-                # still_uget += 1;
-                # break
+    for i in range( len(contours_cur) ):
+        for j in range (len(contours_prev) ):
+            distance= calculate_contour_distance(contours_cur[i], contours_prev[j])
+            if (distance<1.0):
+                cv.fillPoly(cue, pts=contours_cur[i], color=(50))
+                still_uget += 1;
+                break
     
     # tracking
     for t in range(trackers_count):
@@ -195,12 +195,12 @@ while (framenum<lastframe) and (framenum<frame_length-1):
     contours_prev= contours_cur;
     framenum += 1
     
-    cv.imshow('cue',render)
-    cv.imshow('imposed',impose)
-    cv.imshow('heatmap',heatmap)
-    k = cv.waitKey(1) & 0xFF
-    if k== 27: # esc
-       break
+    # cv.imshow('cue',render)
+    # cv.imshow('imposed',impose)
+    # cv.imshow('heatmap',heatmap)
+    # k = cv.waitKey(1) & 0xFF
+    # if k== 27: # esc
+       # break
 
     # GRAPHS
 
