@@ -5,6 +5,7 @@ import math
 import cv2 as cv
 import sys
 import csv
+import random
 
 framenum= 0
 
@@ -38,6 +39,8 @@ vid_heatmap = cv.VideoWriter(sys.argv[8],cv.VideoWriter_fourcc(*'mp4v'), fps, (6
 trackers_count= int((len(sys.argv)-9)/2)
 trackx = np.zeros(trackers_count, dtype=np.uint16)
 tracky = np.zeros(trackers_count, dtype=np.uint16)
+trackx_init = np.zeros(trackers_count, dtype=np.uint16)
+tracky_init = np.zeros(trackers_count, dtype=np.uint16)
 for i in range(trackers_count):
     trackx[i]= int(sys.argv[2*i +9])
     tracky[i]= int(sys.argv[2*i +10])
@@ -49,9 +52,9 @@ TRACK_HOP= 16;
 
 # buat LOKA: pheromone trail and evaporation coefficients
 COEF_EVAPORATE= 1
-COEF_TRAIL= 6
+COEF_TRAIL= 4
 COEF_PATH_FADE= 1
-COEF_SMEAR= 2
+COEF_SMEAR= 1
 DIST_SMEAR= 1
 
 COLOR=([255,0,0], [0,255,0], [0,0,255], [255,255,0], [255,0,255], [0,255,255])
@@ -77,7 +80,7 @@ mask = np.zeros([height, width, 1], dtype=np.uint8)
 
 mask= cv.bitwise_not(mask);
 # buat LOKA: need some interactive way to define the mask's countour
-contours = np.array([ [640,140], [315,220], [320, 300], [640, 230] ]) # 8879
+contours = np.array([ [640,100], [350,157], [378, 240], [505, 310], [640, 290] ]) # 8879
 cv.fillPoly(mask, pts =[contours], color=(0))
 cue_prev= mask;
 
@@ -117,8 +120,8 @@ while (framenum<lastframe) and (framenum<frame_length-1):
                 if (abs(cx-trackx[t])<TRACK_HOP) and (abs(cy-tracky[t])<TRACK_HOP):
                     cv.line(path, (trackx[t],tracky[t]), (cx, cy), COLOR[t%6], 2)
                     cv.circle(path, (cx,cy), 1, COLOR[t%6], 2)
-                    trackx[t]= cx;
-                    tracky[t]= cy;
+                    trackx[t]= cx + random.randint(-2,2)
+                    tracky[t]= cy + random.randint(-2,2)
                     break;
         #print("tracker{}: {} {}".format(t, trackx[t], tracky[t]))
 
@@ -128,13 +131,13 @@ while (framenum<lastframe) and (framenum<frame_length-1):
     # heatmap
     ret,th1 = cv.threshold(cue,10,1,cv.THRESH_BINARY)
     affineMat1 = np.float32([[1, 0, DIST_SMEAR], [0, 1, 0]])
-    shake1 = cv.warpAffine(cue, affineMat1, (height, width))
+    shake1 = cv.warpAffine(th1, affineMat1, (width, height))
     affineMat2 = np.float32([[1, 0, -DIST_SMEAR], [0, 1, 0]])
-    shake2 = cv.warpAffine(cue, affineMat2, (height, width))
+    shake2 = cv.warpAffine(th1, affineMat2, (width, height))
     affineMat3 = np.float32([[1, 0, 0], [0, 1, DIST_SMEAR]])
-    shake3 = cv.warpAffine(cue, affineMat3, (height, width))
+    shake3 = cv.warpAffine(th1, affineMat3, (width, height))
     affineMat4 = np.float32([[1, 0, 0], [0, 1, -DIST_SMEAR]])
-    shake4 = cv.warpAffine(cue, affineMat4, (height, width))
+    shake4 = cv.warpAffine(th1, affineMat4, (width, height))
     pheromone = np.add(pheromone.clip(None, 255-COEF_SMEAR), shake1*COEF_SMEAR)
     pheromone = np.add(pheromone.clip(None, 255-COEF_SMEAR), shake2*COEF_SMEAR)
     pheromone = np.add(pheromone.clip(None, 255-COEF_SMEAR), shake3*COEF_SMEAR)
@@ -185,7 +188,7 @@ while (framenum<lastframe) and (framenum<frame_length-1):
     # GRAPHS
 
 for t in range(trackers_count):
-    cv.arrowedLine(impose, (trackx_init[t], tracky_init[t]), (trackx[t], tracky[t]), (0, 0, 255), 4);
+    cv.arrowedLine(impose, (trackx_init[t], tracky_init[t]), (trackx[t], tracky[t]), COLOR[t], 1);
 cv.imwrite("final.png", impose)
 
 cap.release
