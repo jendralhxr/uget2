@@ -48,15 +48,15 @@ for i in range(trackers_count):
     tracky_init[i]= tracky[i]
     print("tracker{}: {} {}".format(i, trackx[i], tracky[i]))
 
-TRACK_HOP= 16;
+TRACK_HOP= 12;
 
 # buat LOKA: pheromone trail and evaporation coefficients
 # tracking trail
 COEF_PATH_FADE= 1
 # heatmap
 COEF_EVAPORATE= 1
-COEF_TRAIL= 8
-COEF_SMEAR= 6
+COEF_TRAIL= 6
+COEF_SMEAR= 4
 DIST_SMEAR= 1
 
 COLOR=([255,0,0], [0,255,0], [0,0,255], [255,255,0], [255,0,255], [0,255,255])
@@ -107,7 +107,7 @@ while (framenum<lastframe) and (framenum<frame_length-1):
         for j in range (len(contours_prev) ):
             distance= calculate_contour_distance(contours_cur[i], contours_prev[j])
             if (distance<1.0):
-                cv.fillPoly(cue, pts=contours_cur[i], color=(50))
+                cv.fillPoly(cue, pts=contours_cur[i], color=(0))
                 still_uget += 1;
                 break
     
@@ -162,7 +162,7 @@ while (framenum<lastframe) and (framenum<frame_length-1):
     pheromone = np.add(pheromone.clip(None, 255-COEF_TRAIL), th1*COEF_TRAIL)
     pheromone= pheromone- (COEF_EVAPORATE*ph1).clip(None, pheromone)
     
-    heatmap = cv.applyColorMap(pheromone, cv.COLORMAP_PARULA)
+    heatmap = cv.applyColorMap(pheromone, cv.COLORMAP_OCEAN)
     
     # ----------- results
     
@@ -190,6 +190,8 @@ while (framenum<lastframe) and (framenum<frame_length-1):
     vid_overlay.write(impose);
     
     # heatmap
+    cc = cv.cvtColor(current_gray, cv.COLOR_GRAY2BGR)
+    heatmap= cv.bitwise_or(cc, heatmap)
     vid_heatmap.write(heatmap);
     
     contours_prev= contours_cur;
@@ -207,7 +209,7 @@ while (framenum<lastframe) and (framenum<frame_length-1):
 for t in range(trackers_count):
     cv.arrowedLine(impose, (trackx_init[t], tracky_init[t]), (trackx[t], tracky[t]), COLOR[t%6], 1, tipLength=0.04 )
     
-cv.imwrite("final.png", impose)
+cv.imwrite(sys.argv[9], impose)
 
 cap.release
 vid_cue.release
