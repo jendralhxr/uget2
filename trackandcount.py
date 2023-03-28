@@ -192,7 +192,7 @@ while (framenum<lastframe) and (framenum<frame_length-1):
     # heatmap
     cc = cv.cvtColor(current_gray, cv.COLOR_GRAY2BGR)
     heatmapoverlay= cv.addWeighted(heatmap, 0.6, cc, 0.4, 0)
-    vid_heatmap.write(heatmap);
+    vid_heatmap.write(heatmapoverlay);
         
     contours_prev= contours_cur;
     framenum += 1
