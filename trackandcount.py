@@ -55,8 +55,8 @@ TRACK_HOP= 12;
 COEF_PATH_FADE= 1
 # heatmap
 COEF_EVAPORATE= 1
-COEF_TRAIL= 6
-COEF_SMEAR= 4
+COEF_TRAIL= 8
+COEF_SMEAR= 6
 DIST_SMEAR= 1
 
 COLOR=([255,0,0], [0,255,0], [0,0,255], [255,255,0], [255,0,255], [0,255,255])
@@ -82,7 +82,7 @@ mask = np.zeros([height, width, 1], dtype=np.uint8)
 
 mask= cv.bitwise_not(mask);
 # buat LOKA: need some interactive way to define the mask's countour
-contours = np.array([ [640,100], [350,157], [378, 240], [505, 310], [640, 290] ]) # 8879
+contours = np.array([ [640,110], [390,130], [320, 260], [345, 324], [640, 300] ]) # 8879
 cv.fillPoly(mask, pts =[contours], color=(0))
 cue_prev= mask;
 
@@ -162,7 +162,7 @@ while (framenum<lastframe) and (framenum<frame_length-1):
     pheromone = np.add(pheromone.clip(None, 255-COEF_TRAIL), th1*COEF_TRAIL)
     pheromone= pheromone- (COEF_EVAPORATE*ph1).clip(None, pheromone)
     
-    heatmap = cv.applyColorMap(pheromone, cv.COLORMAP_OCEAN)
+    heatmap = cv.applyColorMap(pheromone, cv.COLORMAP_PARULA)
     
     # ----------- results
     
@@ -191,15 +191,15 @@ while (framenum<lastframe) and (framenum<frame_length-1):
     
     # heatmap
     cc = cv.cvtColor(current_gray, cv.COLOR_GRAY2BGR)
-    heatmap= cv.bitwise_or(cc, heatmap)
+    heatmapoverlay= cv.addWeighted(heatmap, 0.6, cc, 0.4, 0)
     vid_heatmap.write(heatmap);
-    
+        
     contours_prev= contours_cur;
     framenum += 1
     
     # cv.imshow('cue',render)
     # cv.imshow('imposed',impose)
-    # cv.imshow('heatmap',heatmap)
+    # cv.imshow('heatmap',heatmapoverlay)
     # k = cv.waitKey(1) & 0xFF
     # if k== 27: # esc
        # break
