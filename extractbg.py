@@ -31,7 +31,7 @@ while (framenum<lastframe) and (framenum<frame_length-1):
         bg_gray= current_gray;
     
     framenum += 1
-    #print(framenum)
+    print(framenum)
     
     # need faster pixel access for this
     for j in range(height):
