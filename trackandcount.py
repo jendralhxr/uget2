@@ -7,6 +7,17 @@ import sys
 import csv
 import random
 
+# pheromone trail and evaporation coefficients, insprired by ant-colony algo
+TRACK_HOP = 12; # how much an uget2 can move within a frame
+# trail 
+COEF_PATH_FADE = 1
+# heatmap
+COEF_EVAPORATE = 1
+COEF_TRAIL = 8
+COEF_SMEAR = 6
+DIST_SMEAR = 1
+# buat LOKA: any way to set these values more gracefully?
+
 framenum = 0
 
 cap = cv.VideoCapture(sys.argv[1])
@@ -48,16 +59,7 @@ for i in range(trackers_count):
     tracky_init[i] = tracky[i]
     print("tracker{}: {} {}".format(i, trackx[i], tracky[i]))
 
-TRACK_HOP = 12;
 
-# buat LOKA: pheromone trail and evaporation coefficients
-# tracking trail
-COEF_PATH_FADE = 1
-# heatmap
-COEF_EVAPORATE = 1
-COEF_TRAIL = 8
-COEF_SMEAR = 6
-DIST_SMEAR = 1
 
 COLOR = ([255, 0, 0], [0, 255, 0], [0, 0, 255], [255, 255, 0], [255, 0, 255], [0, 255, 255])
 
