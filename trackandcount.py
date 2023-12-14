@@ -90,9 +90,10 @@ cv.setMouseCallback(window_name, draw_circle)
 ret, current_col = cap.read()
 while (key != ord('s')):
 	cv.imshow(window_name, cv.bitwise_and(current_col, mask_col))
-	#cv.imshow(window_name, mask_col)
 	key = cv.waitKey(1) & 0xff
-	if key==ord('s'):
+	if key==27:
+		quit()
+	elif key==ord('s'):
 		break
 	elif key==ord('q'):
 		color= (0,0,0)
@@ -234,11 +235,11 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
 
 	# cv.imshow('cue',render)
 	# cv.imshow('imposed',impose)
-	# cv.imshow('heatmap',heatmapoverlay)
+	cv.imshow('heatmap',heatmapoverlay)
 	key = cv.waitKey(1) & 0xff
-	if key==ord('q'):
-		break
-
+	if key==27:
+		quit()
+	
 #the arrow graph
 for t in range(trackers_count):
 	cv.arrowedLine(impose, (trackx_init[t], tracky_init[t]), (trackx[t], tracky[t]), COLOR[t % 6], 1, tipLength=0.04)
