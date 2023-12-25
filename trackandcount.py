@@ -66,6 +66,7 @@ ph1 = np.ones([height, width], dtype=np.uint8)
 
 mask = np.full([height, width], 255, dtype=np.uint8)
 mask_col = np.full([height, width, 3], (255,255,255), dtype=np.uint8)
+# MASKING PAKAI FILLPOLY SAJA
 #contours = np.array([[640, 110], [390, 130], [320, 260], [345, 324], [640, 300]])  # 8879
 #cv.fillPoly(mask, pts=[contours], color=(0))
 
@@ -131,6 +132,9 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
 	# all uget2
 	difference = cv.absdiff(current_gray, ref_gray)
 	ret, thresh = cv.threshold(difference, 0, 255, cv.THRESH_TRIANGLE);
+	#cv.imshow('heatmap',thresh)
+	#DETEKSI DI SINI TERLALU RESTRIKTIF
+	
 	cue = cv.bitwise_and(thresh, mask)
 	contours_cur, hierarchy = cv.findContours(cue, cv.RETR_LIST, cv.CHAIN_APPROX_NONE)
 	if (framenum == startframe):
@@ -202,6 +206,12 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
 
 	# ----------- results
 
+# statistik yang dibutuhkan
+# hasil pengukuran: cacah, ukuran (histogram) 
+# turunan: arah, heatmap
+
+	# cacah, heatmap (sebagai pengganti kerapatan/density), jarak masing2 dari titik target (representasi arah)
+	# kecepatan gerak (histogram speed-count), 
 	# cellcount from countour
 	print("{} {} {}".format(framenum, len(contours_cur), still_uget));
 	# buat RINO: do we need stuff like speed to express motility?
@@ -210,6 +220,7 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
 	for i in range(trackers_count):
 		numlist.append("{} {}".format(trackx[i], tracky[i]))
 	writer.writerow(numlist);
+
 
 	# VIDEO 
 	# cue
@@ -233,9 +244,9 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
 	contours_prev = contours_cur;
 	framenum += 1
 
-	# cv.imshow('cue',render)
-	# cv.imshow('imposed',impose)
-	cv.imshow('heatmap',heatmapoverlay)
+	#cv.imshow('cue',render)
+	cv.imshow('imposed',impose)
+	#cv.imshow('heatmap',heatmapoverlay)
 	key = cv.waitKey(1) & 0xff
 	if key==27:
 		quit()
