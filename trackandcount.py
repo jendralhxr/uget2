@@ -88,12 +88,12 @@ while (key != ord('s')):
         mask_points=[]
         break
     elif key==ord('s'): # start analysis
+        cv.destroyAllWindows()    
         break
     #elif ( (key>=ord('0')) and (key<=ord('9')) ):
         
 mask = cv.cvtColor(mask_col, cv.COLOR_BGR2GRAY)        
 cue_prev = mask;
-COLOR = ([255, 0, 0], [0, 255, 0], [0, 0, 255], [255, 255, 0], [255, 0, 255], [0, 255, 255])
 
 
 # --- main routine
@@ -104,15 +104,13 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
     # all uget2
     difference = cv.absdiff(current_gray, ref_gray)
     ret, thresh = cv.threshold(difference, 0, 255, cv.THRESH_TRIANGLE);
-    #cv.imshow('heatmap',thresh)
-    #DETEKSI DI SINI TERLALU RESTRIKTIF
-    
     cue = cv.bitwise_and(thresh, mask)
     contours_cur, hierarchy = cv.findContours(cue, cv.RETR_LIST, cv.CHAIN_APPROX_NONE)
     if (framenum == startframe):
         contours_prev = contours_cur;
     for c in contours_cur:
         cv.fillPoly(cue, pts=c, color=(255))
+    cv.imshow('cue',cv.bitwise_or(cue, current_gray))
 
     # for LOKA: is there any way to do such search faster?
     still_uget = 0;
@@ -146,17 +144,17 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
     
     # VIDEO 
     # cue
-    render = cv.cvtColor(cue, cv.COLOR_GRAY2BGR)
-    vid_cue.write(render);
+    #render = cv.cvtColor(cue, cv.COLOR_GRAY2BGR)
+    #vid_cue.write(render);
 
     # imposed
-    imposed = cv.bitwise_or(current_col, cue)
-    vid_overlay.write(imposed);
+    #imposed = cv.bitwise_or(current_col, cue)
+    #vid_overlay.write(imposed);
 
     # heatmap
-    cc = cv.cvtColor(current_gray, cv.COLOR_GRAY2BGR)
-    heatmapoverlay = cv.addWeighted(heatmap_col, 0.6, cc, 0.4, 0)
-    vid_heatmap.write(heatmapoverlay);
+    #cc = cv.cvtColor(current_gray, cv.COLOR_GRAY2BGR)
+    #heatmapoverlay = cv.addWeighted(heatmap_col, 0.6, cc, 0.4, 0)
+    #vid_heatmap.write(heatmapoverlay);
 
     contours_prev = contours_cur;
     framenum += 1
