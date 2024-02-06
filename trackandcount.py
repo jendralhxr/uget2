@@ -78,7 +78,7 @@ def mouse_callback(event, x, y, flags, param):
     if event == cv.EVENT_LBUTTONDOWN:
         mask_points.append((x, y))
         #print(f"Clicked at position: ({x}, {y})")
-        cv.circle(mask_col, (x,y), 6, (0,200,0), -1)
+        cv.circle(mask_col, (x,y), 4, (0,200,0), -1)
 
     if len(mask_points) > 2:
         mask_contour= np.array(mask_points)
