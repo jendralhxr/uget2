@@ -17,36 +17,47 @@ print("video is: {}x{} @{} {}".format(width, height, fps,  frame_length) )
 startframe= int(sys.argv[2])
 cap.set(cv.CAP_PROP_POS_FRAMES, float(startframe))
 framenum= startframe;
-lastframe= int(sys.argv[3])
 
-# need interactive way to define the mask's countour
-#contours = np.array([ [0,510], [0,790], [4096, 790], [4096, 510] ])
-#cv.fillPoly(mask, pts =[contours], color=(0))
+ret, cue = cap.read()
+cv.imwrite(sys.argv[3], cue)
+cv.imwrite(sys.argv[4], cv.cvtColor(cue, cv.COLOR_BGR2GRAY))
+cv.imwrite(sys.argv[5], cue[:,:,0])
+cv.imwrite(sys.argv[6], cue[:,:,1])
+cv.imwrite(sys.argv[7], cue[:,:,2])
 
-while (framenum<lastframe) and (framenum<frame_length-1):
-    ret, current_col = cap.read()
-    current_gray = cv.cvtColor(current_col, cv.COLOR_BGR2GRAY)
-    if (framenum==startframe):
-        bg_col= current_col;
-        bg_gray= current_gray;
+
+#lastframe= int(sys.argv[3])
+
+
+
+# # need interactive way to define the mask's countour
+# #contours = np.array([ [0,510], [0,790], [4096, 790], [4096, 510] ])
+# #cv.fillPoly(mask, pts =[contours], color=(0))
+
+# while (framenum<lastframe) and (framenum<frame_length-1):
+    # ret, current_col = cap.read()
+    # current_gray = cv.cvtColor(current_col, cv.COLOR_BGR2GRAY)
+    # if (framenum==startframe):
+        # bg_col= current_col;
+        # bg_gray= current_gray;
     
-    framenum += 1
-    print(framenum)
+    # framenum += 1
+    # print(framenum)
     
-    # need faster pixel access for this
-    for j in range(height):
-        for i in range(width):
-            if (current_gray.item(j, i) > bg_gray.item(j, i)):
-                bg_gray.itemset((j,i), current_gray.item(j,i));
-                bg_col.itemset((j,i,0), current_col.item(j,i,0));
-                bg_col.itemset((j,i,1), current_col.item(j,i,1));
-                bg_col.itemset((j,i,2), current_col.item(j,i,2));
+    # # need faster pixel access for this
+    # for j in range(height):
+        # for i in range(width):
+            # if (current_gray.item(j, i) > bg_gray.item(j, i)):
+                # bg_gray.itemset((j,i), current_gray.item(j,i));
+                # bg_col.itemset((j,i,0), current_col.item(j,i,0));
+                # bg_col.itemset((j,i,1), current_col.item(j,i,1));
+                # bg_col.itemset((j,i,2), current_col.item(j,i,2));
     
-    # cv.imshow('background',bg_col)
-    # cv.imshow('current',current_col)
-    # k = cv.waitKey(1) & 0xFF
-    # if k== 27: # esc
-        # break
+    # # cv.imshow('background',bg_col)
+    # # cv.imshow('current',current_col)
+    # # k = cv.waitKey(1) & 0xFF
+    # # if k== 27: # esc
+        # # break
    
-cv.imwrite(sys.argv[4], bg_col)
+# cv.imwrite(sys.argv[4], bg_col)
 cap.release

@@ -13,8 +13,7 @@ cv.namedWindow(window_name)
 # heatmap
 COEF_FADE_IN = 1.2
 COEF_FADE_OUT = 0.3
-
-# buat LOKA: any way to set these values more gracefully?
+# buat LOKA: any way to set these values more gracefully? like a slider?
 
 framenum = 0
 
