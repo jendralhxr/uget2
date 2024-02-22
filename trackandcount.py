@@ -94,6 +94,7 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
     # uget2 detection
     cue = cv.absdiff(current, ref)
     ret, cue = cv.threshold(cue, 0, 250, cv.THRESH_TRIANGLE);
+    cue = cv.bitwise_and(cue, mask)
     
     vid_cue.write(cv.cvtColor(cue, cv.COLOR_GRAY2BGR))
         
