@@ -12,6 +12,8 @@ COEF_FADE_IN = 1.2
 COEF_FADE_OUT = 0.4
 # buat LOKA: any way to set these values more gracefully? like a slider?
 
+threshold_value = 20
+
 framenum = 0
 window_name = "uget2"
 cv.namedWindow(window_name)
@@ -93,20 +95,41 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
     
     # uget2 detection
     cue = cv.absdiff(current, ref)
-    ret, cue = cv.threshold(cue, 0, 250, cv.THRESH_TRIANGLE);
-    cue = cv.bitwise_and(cue, mask)
+    ret, cue_tri = cv.threshold(cue, 0, 250, cv.THRESH_TRIANGLE);
+    ret, cue_raw= cv.threshold(cue,threshold_value,250,cv.THRESH_BINARY)
+    #cue_mean = cv.adaptiveThreshold(cue,250,cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY,11,2)
+    #cue_gauss = cv.adaptiveThreshold(cue,250,cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY,11,2)
     
-    vid_cue.write(cv.cvtColor(cue, cv.COLOR_GRAY2BGR))
+    #cue = cv.bitwise_and(cue, mask)
+    cue_raw = cv.bitwise_and(cue_raw, mask)
+    #cue_mean = cv.bitwise_and(cue_mean, mask)
+    #cue_gauss = cv.bitwise_and(cue_gauss, mask)
+    
+    #vid_cue.write(cv.cvtColor(cue_mean, cv.COLOR_GRAY2BGR))
+    #vid_heat.write(cv.cvtColor(cue_gauss, cv.COLOR_GRAY2BGR))
         
-    #cv.imshow("cue1", cue1)
+    cv.imshow("raw", cue_raw)
+    #cv.imshow("mean", cue_mean)
+    #cv.imshow("gauss", cue_gauss)
     #cv.imshow("cue2", cue2)
     
     framenum= framenum+1
     print(framenum)
-    #key = cv.waitKey(1) & 0xff
-    #if key==27:
-    #    quit()
+    key = cv.waitKey(1) & 0xff
+    if key==27:
+        quit()
+    if key==ord('s'):
+        print("save {}".format(framenum))
+        cv.imwrite("cue"+str(framenum)+".png", cue)
+        cv.imwrite("ref"+str(framenum)+".png", ref)
+    if key==ord('a'):
+        threshold_value = threshold_value -1
+        print("threshold: "+str(threshold_value))
+    if key==ord('d'):
+        threshold_value = threshold_value +1
+        print("threshold: "+str(threshold_value))
 
+cv.imwrite('reffinal.png', ref)
 cap.release
-#vid_cue.release
-#vid_heat.release
+vid_cue.release
+vid_heat.release
