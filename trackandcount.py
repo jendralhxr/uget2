@@ -12,7 +12,7 @@ COEF_FADE_IN = 1.2
 COEF_FADE_OUT = 0.4
 # buat LOKA: any way to set these values more gracefully? like a slider?
 
-threshold_value = 20
+threshold_value = 16 # good place to start
 
 framenum = 0
 window_name = "uget2"
@@ -121,6 +121,7 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
     if key==ord('s'):
         print("save {}".format(framenum))
         cv.imwrite("cue"+str(framenum)+".png", cue)
+        cv.imwrite("det"+str(framenum)+".png", cue_raw)
         cv.imwrite("ref"+str(framenum)+".png", ref)
     if key==ord('a'):
         threshold_value = threshold_value -1
