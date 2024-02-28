@@ -108,7 +108,8 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
     #vid_cue.write(cv.cvtColor(cue_mean, cv.COLOR_GRAY2BGR))
     #vid_heat.write(cv.cvtColor(cue_gauss, cv.COLOR_GRAY2BGR))
         
-    cv.imshow("raw", cue_raw)
+    cv.imshow("raw", cv.bitwise_and(current_col, cv.cvtColor(cue_raw, cv.COLOR_GRAY2BGR)
+    cv.imshow("deteksi", cue_raw)
     #cv.imshow("mean", cue_mean)
     #cv.imshow("gauss", cue_gauss)
     #cv.imshow("cue2", cue2)
