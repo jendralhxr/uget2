@@ -1,20 +1,17 @@
-# python -u trackandcount.py input.mp4 0 24000000000000 log.csv cue.mp4 heatmap.mp4
+# python -u trackandcount.py input.mp4 0 24000000000000 cue.mp4 heatmap.mp4
 
 import numpy as np
-import math
 import cv2 as cv
 import sys
-import csv
-import random
+import ffmpegcv
 
 # heatmap
 COEF_FADE_IN = 1.2
 COEF_FADE_OUT = 0.4
 # buat LOKA: any way to set these values more gracefully? like a slider?
 
-threshold_value = 10 # good place to start
+threshold_value = 14 # good place to start
 space= 4 # most probable uget2 uget2 size
-
 
 framenum = 0
 window_name = "uget2"
@@ -32,14 +29,8 @@ cap.set(cv.CAP_PROP_POS_FRAMES, float(startframe))
 framenum = startframe;
 lastframe = int(sys.argv[3])
 
-csvlog = open(sys.argv[4], 'w', newline='')
-writer = csv.writer(csvlog)
-# buat RINO: need to define the columns
-header = ['framenum', 'count', 'motility']
-writer.writerow(header);
-
-vid_cue = cv.VideoWriter(sys.argv[5], cv.VideoWriter_fourcc(*'mp4v'), fps, (640, 480))
-vid_heat = cv.VideoWriter(sys.argv[6], cv.VideoWriter_fourcc(*'mp4v'), fps, (640, 480))
+vid_cue = ffmpegcv.VideoWriter(sys.argv[4], None, 60, (width, height))
+vid_heat = ffmpegcv.VideoWriter(sys.argv[5], None, 60, (width, height))
 
 heatmap = np.zeros([height, width], dtype=np.uint8)
 mask = np.full([height, width], 255, dtype=np.uint8)
@@ -76,15 +67,15 @@ while (key != ord('s')):
         quit()
     elif key==ord('c'): # clear masks
         mask_points=[]
-        break
     elif key==ord('s'): # start analysis
         cv.destroyAllWindows()    
         break
-        
 
 # --- main routine
 while (framenum < lastframe) and (framenum < frame_length - 1):
     ret, current_col = cap.read()
+    vid_cue.write(current_col)
+    
     current = cv.cvtColor(current_col, cv.COLOR_BGR2GRAY)
     cue = cv.bitwise_and(current, mask)
 
@@ -105,14 +96,16 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
     #cue_gauss = cv.adaptiveThreshold(cue,250,cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY,11,2)
     
     # uget2 counting with countours
-    render = cv.cvtColor(cue_raw, cv.COLOR_GRAY2BGR)
-    render = current_col
+    #render = cv.cvtColor(cue_raw, cv.COLOR_GRAY2BGR)
+    render = current_col.copy()
     contours, hierarchy = cv.findContours(cue_raw, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE)
 	#contours, hierarchy = cv.findContours(cue, cv.RETR_LIST, cv.CHAIN_APPROX_NONE)
     for c in contours:
         cv.fillPoly(render, pts=c, color=(0,255,0))
     cv.imshow("deteksi", render)
-    print(f'{framenum}: {len(contours)} cells')
+    vid_cue.write(render)
+    
+    print(f'{framenum},{len(contours)}')
     
     framenum= framenum+1
     key = cv.waitKey(1) & 0xff
@@ -133,4 +126,4 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
 cv.imwrite('reffinal.png', ref)
 cap.release
 vid_cue.release
-vid_heat.release
+#vid_heat.release
