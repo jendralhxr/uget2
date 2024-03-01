@@ -104,31 +104,17 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
     #cue_mean = cv.adaptiveThreshold(cue,250,cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY,11,2)
     #cue_gauss = cv.adaptiveThreshold(cue,250,cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY,11,2)
     
-    # uget2 counting with superpixel
-    #render = current_col.copy()
+    # uget2 counting with countours
     render = cv.cvtColor(cue_raw, cv.COLOR_GRAY2BGR)
-    uget_detected= 0
-    gigit fsadaslic = cv.ximgproc.createSuperpixelSLIC(cue_raw, algorithm=cv.ximgproc.SLIC, region_size=space)
-    slic.iterate(4)
-    num_slic = slic.getNumberOfSuperpixels()
-    lbls = slic.getLabels()
-    slmask= slic.getLabelContourMask()
-    for cls_lbl in range(num_slic):
-        fst_cls = np.argwhere(lbls==cls_lbl)
-        x, y = fst_cls[:, 0], fst_cls[:, 1]
-        c = (x.mean(), y.mean())
-        cx= int(c[1])
-        cy= int(c[0])
-        if (cue_raw.item(cy,cx) != 0):
-            render.itemset((cy,cx,1), 255)
-            uget_detected= uget_detected+1
-            #print(f'{cls_lbl} point at: ({int(c[1])}, {int(c[0])})')
-    print(f'{framenum} uget detected: {uget_detected}')
-    
+    render = current_col
+    contours, hierarchy = cv.findContours(cue_raw, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE)
+	#contours, hierarchy = cv.findContours(cue, cv.RETR_LIST, cv.CHAIN_APPROX_NONE)
+    for c in contours:
+        cv.fillPoly(render, pts=c, color=(0,255,0))
     cv.imshow("deteksi", render)
+    print(f'{framenum}: {len(contours)} cells')
     
     framenum= framenum+1
-    #print(framenum)
     key = cv.waitKey(1) & 0xff
     if key==27:
         quit()
