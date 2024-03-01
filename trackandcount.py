@@ -12,7 +12,9 @@ COEF_FADE_IN = 1.2
 COEF_FADE_OUT = 0.4
 # buat LOKA: any way to set these values more gracefully? like a slider?
 
-threshold_value = 16 # good place to start
+threshold_value = 10 # good place to start
+space= 4 # most probable uget2 uget2 size
+
 
 framenum = 0
 window_name = "uget2"
@@ -63,6 +65,9 @@ def mouse_callback(event, x, y, flags, param):
 cv.setMouseCallback(window_name, mouse_callback)
 
 ret, current_col = cap.read()
+ref= cv.cvtColor(current_col, cv.COLOR_BGR2GRAY) 
+
+# drawing the mask
 while (key != ord('s')):
     # draw over mask_col with the dots
     cv.imshow(window_name, cv.bitwise_and(current_col, mask_col))
@@ -78,44 +83,52 @@ while (key != ord('s')):
         
 
 # --- main routine
-cue_prev = mask;
-ref= cv.cvtColor(current_col, cv.COLOR_BGR2GRAY) 
-
 while (framenum < lastframe) and (framenum < frame_length - 1):
     ret, current_col = cap.read()
     current = cv.cvtColor(current_col, cv.COLOR_BGR2GRAY)
     cue = cv.bitwise_and(current, mask)
 
     # keep the ref (reference background) the brightest
-    for j in range(480):
-        for i in range(640):
+    # also apply the mask for the capilary pipe
+    for j in range(height):
+        for i in range(width):
             if current.item(j,i) > ref.item(j,i):
                 ref.itemset((j,i), current.item(j,i))
     ref = cv.bitwise_and(ref, mask)
     
-    # uget2 detection
+    # uget2 detection: background substraction and thresholding
     cue = cv.absdiff(current, ref)
-    ret, cue_tri = cv.threshold(cue, 0, 250, cv.THRESH_TRIANGLE);
+    #ret, cue_tri = cv.threshold(cue, 0, 250, cv.THRESH_TRIANGLE);
     ret, cue_raw= cv.threshold(cue,threshold_value,250,cv.THRESH_BINARY)
+    cue_raw = cv.bitwise_and(cue_raw, mask)
     #cue_mean = cv.adaptiveThreshold(cue,250,cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY,11,2)
     #cue_gauss = cv.adaptiveThreshold(cue,250,cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY,11,2)
     
-    #cue = cv.bitwise_and(cue, mask)
-    cue_raw = cv.bitwise_and(cue_raw, mask)
-    #cue_mean = cv.bitwise_and(cue_mean, mask)
-    #cue_gauss = cv.bitwise_and(cue_gauss, mask)
+    # uget2 counting with superpixel
+    #render = current_col.copy()
+    render = cv.cvtColor(cue_raw, cv.COLOR_GRAY2BGR)
+    uget_detected= 0
+    gigit fsadaslic = cv.ximgproc.createSuperpixelSLIC(cue_raw, algorithm=cv.ximgproc.SLIC, region_size=space)
+    slic.iterate(4)
+    num_slic = slic.getNumberOfSuperpixels()
+    lbls = slic.getLabels()
+    slmask= slic.getLabelContourMask()
+    for cls_lbl in range(num_slic):
+        fst_cls = np.argwhere(lbls==cls_lbl)
+        x, y = fst_cls[:, 0], fst_cls[:, 1]
+        c = (x.mean(), y.mean())
+        cx= int(c[1])
+        cy= int(c[0])
+        if (cue_raw.item(cy,cx) != 0):
+            render.itemset((cy,cx,1), 255)
+            uget_detected= uget_detected+1
+            #print(f'{cls_lbl} point at: ({int(c[1])}, {int(c[0])})')
+    print(f'{framenum} uget detected: {uget_detected}')
     
-    #vid_cue.write(cv.cvtColor(cue_mean, cv.COLOR_GRAY2BGR))
-    #vid_heat.write(cv.cvtColor(cue_gauss, cv.COLOR_GRAY2BGR))
-        
-    cv.imshow("raw", cv.bitwise_and(current_col, cv.cvtColor(cue_raw, cv.COLOR_GRAY2BGR)
-    cv.imshow("deteksi", cue_raw)
-    #cv.imshow("mean", cue_mean)
-    #cv.imshow("gauss", cue_gauss)
-    #cv.imshow("cue2", cue2)
+    cv.imshow("deteksi", render)
     
     framenum= framenum+1
-    print(framenum)
+    #print(framenum)
     key = cv.waitKey(1) & 0xff
     if key==27:
         quit()
