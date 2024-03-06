@@ -5,14 +5,11 @@ import cv2 as cv
 import sys
 import cmapy
 
-# heatmap
 COEF_FADE_IN  = 1.00
 COEF_FADE_OUT = 0.75
 HEATMAP_CEIL= COEF_FADE_IN * 60 # persistence presence is noted within 1 second
-# buat LOKA: any way to set these values more gracefully? like a slider?
-
 threshold_value = 13 # good place to start
-space= 4 # most probable uget2 uget2 size
+# buat LOKA: any way to set these values more gracefully? like a slider?
 
 framenum = 0
 window_name = "uget2"
@@ -35,6 +32,7 @@ vid_heat = cv.VideoWriter(sys.argv[5], cv.VideoWriter_fourcc(*'mp4v'), fps, (640
 
 heatmap = np.zeros([height, width], dtype=np.single)
 heatmap_cue = np.full([height, width], 255, dtype=np.uint8)
+tempcount = np.zeros(60, dtype=np.uint)
 
 mask_col = np.full([height, width, 3], (255,255,255), dtype=np.uint8)
 mask = np.full([height, width], 255, dtype=np.uint8)
@@ -107,7 +105,9 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
     for c in contours:
         cv.fillPoly(render, pts=c, color=(23,116,255)) # pumpkin orange
     
-    
+    # averaging the count over a second
+    tempcount[framenum%60]= len(contours)
+        
     #heatmap
     heatmap= heatmap + (COEF_FADE_IN * cue_raw/250)
     heatmap= heatmap - COEF_FADE_OUT
@@ -133,7 +133,11 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
     cv.imshow("heatmap", heatmap_render)
     #vid_cue.write(render)
     
-    print(f'{framenum},{len(contours)},{np.min(heatmap)},{np.max(heatmap)},{cmx},{cmy},{hmx},{hmy}')
+    if (framenum%60==0):
+        print(f'{framenum/60},{len(contours)},{np.min(heatmap)},{np.max(heatmap)},{cmx},{cmy},{hmx},{hmy},{np.average(tempcount)}')
+        tempcount = np.zeros(60, dtype=np.uint)
+    else:
+        print(f'{framenum/60},{len(contours)},{np.min(heatmap)},{np.max(heatmap)},{cmx},{cmy},{hmx},{hmy}')
     
     framenum= framenum+1
     key = cv.waitKey(1) & 0xff
