@@ -134,7 +134,7 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
     #vid_cue.write(render)
     
     if (framenum%60==0):
-        print(f'{framenum/60},{len(contours)},{np.min(heatmap)},{np.max(heatmap)},{cmx},{cmy},{hmx},{hmy},{np.average(tempcount)}')
+        print(f'{framenum/60},{len(contours)},{np.min(heatmap)},{np.max(heatmap)},{cmx},{cmy},{hmx},{hmy},{int(framenum/60)},{np.average(tempcount)}')
         tempcount = np.zeros(60, dtype=np.uint)
     else:
         print(f'{framenum/60},{len(contours)},{np.min(heatmap)},{np.max(heatmap)},{cmx},{cmy},{hmx},{hmy}')
