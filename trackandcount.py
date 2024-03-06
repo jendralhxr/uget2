@@ -3,6 +3,7 @@
 import numpy as np
 import cv2 as cv
 import sys
+import cmapy
 
 # heatmap
 COEF_FADE_IN  = 1.00
@@ -114,7 +115,7 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
     heatmapf = np.clip(heatmap, 0, HEATMAP_CEIL) # saturated heatmap, only for display    
     heatmapf.itemset((0,0), HEATMAP_CEIL)
     cv.normalize(heatmapf, heatmap_cue, 0, 255, cv.NORM_MINMAX, cv.CV_8UC1)
-    heatmap_render = cv.applyColorMap(heatmap_cue, cv.COLORMAP_JET)
+    heatmap_render = cv.applyColorMap(heatmap_cue, cmapy.cmap('nipy_spectral'))
     
     cv.imshow("treshold", cue_raw)
     cv.imshow("deteksi", render)
