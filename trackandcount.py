@@ -31,7 +31,7 @@ framenum = startframe;
 lastframe = int(sys.argv[3])
 
 vid_cue = cv.VideoWriter(sys.argv[4], cv.VideoWriter_fourcc(*'mp4v'), fps, (640, 480))
-#vid_heat = cv.VideoWriter(sys.argv[5], cv.VideoWriter_fourcc(*'mp4v'), fps, (640, 480))
+vid_heat = cv.VideoWriter(sys.argv[5], cv.VideoWriter_fourcc(*'mp4v'), fps, (640, 480))
 
 heatmap = np.zeros([height, width], dtype=np.single)
 heatmap_cue = np.full([height, width], 255, dtype=np.uint8)
@@ -117,12 +117,23 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
     cv.normalize(heatmapf, heatmap_cue, 0, 255, cv.NORM_MINMAX, cv.CV_8UC1)
     heatmap_render = cv.applyColorMap(heatmap_cue, cmapy.cmap('nipy_spectral'))
     
+    # current presence
+    cmoments= cv.moments(cue_raw, binaryImage=True) 
+    cmx = int(cmoments["m10"] / cmoments["m00"])
+    cmy = int(cmoments["m01"] / cmoments["m00"])
+    cv.circle(heatmap_render, (cmx,cmy), 4, (0,200,0), -1)
+    # cumulative heatmap
+    hmoments= cv.moments(heatmap)
+    hmx = int(hmoments["m10"] / hmoments["m00"])
+    hmy = int(hmoments["m01"] / hmoments["m00"])
+    cv.circle(heatmap_render, (hmx,hmy), 4, (0,0,200), -1)
+    
     cv.imshow("treshold", cue_raw)
     cv.imshow("deteksi", render)
     cv.imshow("heatmap", heatmap_render)
     #vid_cue.write(render)
     
-    print(f'{framenum},{len(contours)},{np.min(heatmap)},{np.max(heatmap)}')
+    print(f'{framenum},{len(contours)},{np.min(heatmap)},{np.max(heatmap)},{cmx},{cmy},{hmx},{hmy}')
     
     framenum= framenum+1
     key = cv.waitKey(1) & 0xff
@@ -139,8 +150,14 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
     if key==ord('d'):
         threshold_value = threshold_value +1
         print("threshold: "+str(threshold_value))
-
-cv.imwrite('reffinal.png', ref)
+    if key==ord('r'): # reset video from the beginning
+        vid_cue.release()
+        vid_heat.release()
+        vid_cue = cv.VideoWriter(sys.argv[4], cv.VideoWriter_fourcc(*'mp4v'), fps, (640, 480))
+        vid_heat = cv.VideoWriter(sys.argv[5], cv.VideoWriter_fourcc(*'mp4v'), fps, (640, 480))
+        framenum= 0
+        cap.set(cv.CAP_PROP_POS_FRAMES, float(0.0))
+        
 cap.release
 vid_cue.release
-#vid_heat.release
+vid_heat.release
