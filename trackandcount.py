@@ -4,11 +4,12 @@ import numpy as np
 import cv2 as cv
 import sys
 import cmapy
+import ffmpegcv
 
 COEF_FADE_IN  = 1.00
-COEF_FADE_OUT = 0.75
+COEF_FADE_OUT = 0.90
 HEATMAP_CEIL= COEF_FADE_IN * 60 # persistence presence is noted within 1 second
-threshold_value = 10 # good place to start
+threshold_value = 13 # good place to start
 # buat LOKA: any way to set these values more gracefully? like a slider?
 
 framenum = 0
@@ -19,17 +20,12 @@ cap = cv.VideoCapture(sys.argv[1])
 width = int(cap.get(cv.CAP_PROP_FRAME_WIDTH));
 height = int(cap.get(cv.CAP_PROP_FRAME_HEIGHT));
 fps = cap.get(cv.CAP_PROP_FPS);
-fourcc = cv.VideoWriter_fourcc(*'XVID')
 frame_length = int(cap.get(cv.CAP_PROP_FRAME_COUNT))
-
 print("input video is: {}x{} @{} {}".format(width, height, fps, frame_length))
-
 startframe = int(sys.argv[2])
 cap.set(cv.CAP_PROP_POS_FRAMES, float(startframe))
 framenum = startframe;
 lastframe = int(sys.argv[3])
-vid_cue = cv.VideoWriter(sys.argv[4], fourcc, fps, (width, height))
-vid_heat = cv.VideoWriter(sys.argv[5], fourcc, fps, (width, height))
 
 heatmap = np.zeros([height, width], dtype=np.single)
 heatmap_cue = np.full([height, width], 255, dtype=np.uint8)
@@ -46,7 +42,6 @@ mask_points=[]
 ret, current_col = cap.read()
 ref= cv.cvtColor(current_col, cv.COLOR_BGR2GRAY) 
 
-"""
 def mouse_callback(event, x, y, flags, param):
     global mask_col, color
     if event == cv.EVENT_LBUTTONDOWN:
@@ -72,8 +67,11 @@ while (key != ord('s')):
         cv.setMouseCallback(window_name, lambda *args : None)
         cv.destroyAllWindows()    
         key=ord('-') # unlikely to press this 
+        fourcc = 'h264'
+        vid_cue = ffmpegcv.VideoWriter(sys.argv[4], fourcc, fps, (width, height))
+        vid_heat = ffmpegcv.VideoWriter(sys.argv[5], fourcc, fps, (width, height))
         break
-"""
+
 
 # --- main routine
 while (framenum < lastframe) and (framenum < frame_length - 1):
@@ -125,7 +123,7 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
         mass=1
     cmx = int(cmoments["m10"] / mass)
     cmy = int(cmoments["m01"] / mass)
-    cv.circle(heatmap_render, (cmx,cmy), 4, (0,200,0), -1)
+    cv.circle(render, (cmx,cmy), 4, (0,0,220), -1)
     # cumulative heatmap
     hmoments= cv.moments(heatmap)
     hmass= hmoments["m00"]
@@ -133,13 +131,14 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
         hmass=1
     hmx = int(hmoments["m10"] / hmass)
     hmy = int(hmoments["m01"] / hmass)
-    cv.circle(heatmap_render, (hmx,hmy), 4, (0,0,200), -1)
+    cv.circle(heatmap_render, (hmx,hmy), 4, (0,220,), -1)
     
     #cv.imshow("treshold", cue_raw)
     #cv.imshow("deteksi", render)
     #cv.imshow("heatmap", heatmap_render)
-    vid_cue.write(current_col)
-    vid_heat.write(current_col)
+    #key = cv.waitKey(1) & 0xff
+    vid_cue.write(render)
+    vid_heat.write(heatmap_render)
     
     if (framenum%60==0):
         print(f'{framenum/60:.3f},{len(contours)},{np.min(heatmap)},{np.max(heatmap)},{cmx},{cmy},{hmx},{hmy},{int(framenum/60)},{np.average(tempcount)}')
@@ -149,7 +148,6 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
     
     framenum= framenum+1
     #print(framenum)
-    #key = cv.waitKey(1) & 0xff
     if key==27:
         quit()
     elif key==ord('s'):
@@ -166,8 +164,8 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
     elif key==ord('r'): # reset video from the beginning
         vid_cue.release()
         vid_heat.release()
-        vid_cue = cv.VideoWriter(sys.argv[4], fourcc, fps, (frame_width, frame_height))
-        vid_heat = cv.VideoWriter(sys.argv[5], fourcc, fps, (frame_width, frame_height))
+        vid_cue = ffmpegcv.VideoWriter(sys.argv[4], fourcc, fps, (width, height))
+        vid_heat = ffmpegcv.VideoWriter(sys.argv[5], fourcc, fps, (width, height))
         framenum= 0
         cap.set(cv.CAP_PROP_POS_FRAMES, float(0.0))
         
