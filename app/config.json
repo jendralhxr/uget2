@@ -1,0 +1,15 @@
+{
+    "frame": {
+        "width": 1024,
+        "height": 640,
+        "background": "white",
+        "button_size": 80,
+        "button_small_size": 50
+    },
+
+    "video": {
+        "max_width":640,
+        "max_height":480,
+        "scale":0.75
+    }
+}
