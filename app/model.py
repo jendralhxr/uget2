@@ -1,11 +1,14 @@
-class OpenFileModel():
+class OpenFileModel:
     pass
 
-class MainWindowModel():
+
+class MainWindowModel:
     pass
 
-class MaskingModel():
+
+class MaskingModel:
     pass
 
-class ResultModel():
+
+class ResultModel:
     pass
