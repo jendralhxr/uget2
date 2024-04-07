@@ -11,12 +11,16 @@ class MainWindowControler:
         self.model = model
 
         self.init_callbacks()
+
+    def run(self):
         self.open_video()
         self.view.run()
 
     def open_video(self):
-        top = OpenFileView(self.view.window, None)
-        # top.protocol("WM_DELETE_WINDOW", self.on_top_window_close)
+
+        top = OpenFileView()
+        top.set_parent(self.view.window)
+        top._showGUI("Open video file")
         self.view.window.withdraw()
         top.deiconify()
 

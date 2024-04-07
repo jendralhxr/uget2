@@ -4,12 +4,14 @@ from PIL import Image
 
 
 class OpenFileView(customtkinter.CTkToplevel):
-    def __init__(self, master, config):
-        super().__init__(master)
-        self.master = master
-        self.config = config
-        self.callbacks = {}
-        self._showGUI("Open video file")
+    def __init__(self):
+
+        # self._showGUI("Open video file")
+        pass
+
+    def set_parent(self, parent):
+        super().__init__(parent)
+        self.parent = parent
 
     def _showGUI(self, title):
         self.title(title)
@@ -34,12 +36,7 @@ class OpenFileView(customtkinter.CTkToplevel):
 class MainWindowView:
     def __init__(self):
         super().__init__()
-        self.callbacks = {}
-        # self._init_assets()
         self._show_gui("Uget-Uget Counting ver 0.1")
-        # self.open_video()
-
-        # self.run() #this should be called in controler
 
     def _show_gui(self, title):
         self.window = customtkinter.CTk()
