@@ -1,7 +1,7 @@
 import customtkinter
 from customtkinter import filedialog
 from PIL import Image
-from view import OpenFileView
+from view import OpenFileView, MaskingView
 
 
 class MainWindowControler:
@@ -12,17 +12,17 @@ class MainWindowControler:
 
         self.init_callbacks()
 
+    def bind_top_windows_controlers(self, controler_dict):
+        self.top_controler = controler_dict
+
     def run(self):
         self.open_video()
         self.view.run()
 
     def open_video(self):
-
-        top = OpenFileView()
-        top.set_parent(self.view.window)
-        top._showGUI("Open video file")
+        self.top_controler["open_file"].run(self)
         self.view.window.withdraw()
-        top.deiconify()
+        # self.top_controler["open_file"].deiconify()
 
     def init_callbacks(self):
         ###############################################################################
@@ -112,17 +112,21 @@ class OpenFileControler:
         self.config = config
         self.model = model
 
-    def button_callback(self):
+    def init_callbacks(self):
+        self.view.window.button_load_video.configure(
+            command=self.button_load_video_pressed
+        )
+
+    def button_load_video_pressed(self):
         filename = filedialog.askopenfilename()
         print(f"file name is {filename}")
-        self.withdraw()
-        top = self.view.main_view(self)
-        top.protocol("WM_DELETE_WINDOW", self.on_top_window_close)
-        top.deiconify()
+        self.view.window.withdraw()
+        self.parent_controler.top_controler["masking"].run(self.parent_controler)
 
-    def on_top_window_close(self):
-        self.deiconify()
-        self.destroy()
+    def run(self, parent_controler):
+        self.parent_controler = parent_controler
+        self.view.run(parent_controler.view.window)
+        self.init_callbacks()
 
 
 class MaskingControler:
@@ -130,6 +134,17 @@ class MaskingControler:
         self.view = view
         self.config = config
         self.model = model
+
+    def init_callbacks(self):
+        pass
+
+    def some_event_trigger(self):
+        pass
+
+    def run(self, parent_controler):
+        self.parent_controler = parent_controler
+        self.view.run(parent_controler.view.window)
+        self.init_callbacks()
 
 
 class ResultControler:

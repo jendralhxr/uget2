@@ -10,6 +10,11 @@ from model import MainWindowModel, OpenFileModel, MaskingModel, ResultModel
 
 config = Configuration()
 
+# main windows instantiation
+main_view = MainWindowView()
+main_model = MainWindowModel()
+main_controler = MainWindowControler(main_view, main_model, config)
+
 # open file instantiation
 open_file_view = OpenFileView()
 open_file_model = OpenFileModel()
@@ -25,9 +30,11 @@ result_view = ResultView()
 result_model = ResultModel()
 result_controler = ResultControler(result_view, result_model, config)
 
-# main windows instantiation
-main_view = MainWindowView()
-main_model = MainWindowModel()
-main_controler = MainWindowControler(main_view, main_model, config)
+controlers = {
+    "open_file": open_file_controler,
+    "masking": masking_controler,
+    "result": result_controler,
+}
 
+main_controler.bind_top_windows_controlers(controlers)
 main_controler.run()

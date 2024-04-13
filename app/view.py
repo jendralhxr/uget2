@@ -3,36 +3,6 @@ from customtkinter import filedialog
 from PIL import Image
 
 
-class OpenFileView(customtkinter.CTkToplevel):
-    def __init__(self):
-
-        # self._showGUI("Open video file")
-        pass
-
-    def set_parent(self, parent):
-        super().__init__(parent)
-        self.parent = parent
-
-    def _showGUI(self, title):
-        self.title(title)
-        self.geometry("400x180")
-        self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure(0, weight=1)
-
-        self.label = customtkinter.CTkLabel(
-            self, text="Welcome to Uget-Uget Counting ver 0.1"
-        )
-        self.label.grid(row=0, columnspan=3, padx=10, pady=10, sticky="ew")
-        self.button = customtkinter.CTkButton(
-            self, width=80, text="Load Video", command=self.button_callback
-        )
-        self.button.grid(row=1, column=1, padx=10, pady=10, sticky="ew")
-
-    def button_callback(self):
-        self.master.deiconify()
-        pass
-
-
 class MainWindowView:
     def __init__(self):
         super().__init__()
@@ -155,9 +125,52 @@ class MainWindowView:
         self.window.mainloop()
 
 
+class OpenFileView:
+    def __init__(self):
+        self.title = "Open video file"
+
+    def _build_gui(self, parent):
+        self.window = customtkinter.CTkToplevel(parent)
+        self.window.title(self.title)
+        self.window.geometry("400x180")
+        self.window.grid_columnconfigure(0, weight=1)
+        self.window.grid_rowconfigure(0, weight=1)
+
+        self.window.label = customtkinter.CTkLabel(
+            self.window, text="Welcome to Uget-Uget Counting ver 0.1"
+        )
+        self.window.label.grid(row=0, columnspan=3, padx=10, pady=10, sticky="ew")
+        self.window.button_load_video = customtkinter.CTkButton(
+            self.window, width=80, text="Load Video"
+        )
+        self.window.button_load_video.grid(
+            row=1, column=1, padx=10, pady=10, sticky="ew"
+        )
+
+    def run(self, parent):
+        self._build_gui(parent)
+        self.window.deiconify()
+
+
 class MaskingView:
-    pass
+    def __init__(self):
+        super().__init__()
+        self.title = "Uget-Uget Counting ver 0.1"
+
+    def _build_gui(self, parent):
+        self.window = customtkinter.CTkToplevel(parent)
+        self.window.title(self.title)
+        self.window.geometry("1024x640")
+
+    def run(self, parent):
+        self._build_gui(parent)
+        self.window.deiconify()
 
 
 class ResultView:
     pass
+
+
+# frame information
+# snapshots 2 tombol
+# ukuran frame
