@@ -1,6 +1,6 @@
 import customtkinter
 from customtkinter import filedialog
-from PIL import Image
+from PIL import Image, ImageTk
 
 
 class MainWindowView:
@@ -155,12 +155,43 @@ class OpenFileView:
 class MaskingView:
     def __init__(self):
         super().__init__()
-        self.title = "Uget-Uget Counting ver 0.1"
+        self.title = "Masking - Uget-Uget Counting ver 0.1"
 
     def _build_gui(self, parent):
         self.window = customtkinter.CTkToplevel(parent)
         self.window.title(self.title)
         self.window.geometry("1024x640")
+
+        frame = customtkinter.CTkFrame(self.window)
+        frame.place(relx=0.5, rely=0.5, anchor="c")
+
+        self.image1 = Image.open("4879.png")
+
+        img = ImageTk.PhotoImage(self.image1)
+        canvas = customtkinter.CTkCanvas(frame,width=int(640),height=int(480))
+        canvas.image = img
+        canvas.create_image(0,0,anchor='nw',image=img)
+        canvas.grid(row=0, columnspan=5, padx=10, pady=10, sticky="ew")
+        canvas.bind("<Button 1>", self.get_coor)
+        
+        self.window.button_clear_masking = customtkinter.CTkButton(
+            frame, width=80, text="clear"
+        )   
+        self.window.button_clear_masking.grid(
+            row=1, column=3, padx=10, pady=10, sticky="ew"
+        )
+
+        self.window.button_masking = customtkinter.CTkButton(
+            frame, width=80, text="masking"
+        )
+
+        self.window.button_masking.grid(
+            row=1, column=4, padx=10, pady=10, sticky="ew"
+        )
+
+    def get_coor(self, event):
+        mouse_xy = (event.x, event.y)
+        print(mouse_xy)
 
     def run(self, parent):
         self._build_gui(parent)
