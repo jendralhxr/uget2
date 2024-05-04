@@ -15,14 +15,16 @@ class MainWindowControler:
     def bind_top_windows_controlers(self, controler_dict):
         self.top_controler = controler_dict
 
-    def run(self):
-        self.open_video()
-        self.view.run()
+    def run(self, starting=True):
+        if starting:
+            self.open_video()
+            self.view.run()
+        else:
+            self.view.window.deiconify()
 
     def open_video(self):
         self.top_controler["open_file"].run(self)
         self.view.window.withdraw()
-        # self.top_controler["open_file"].deiconify()
 
     def init_callbacks(self):
         ###############################################################################
@@ -60,8 +62,8 @@ class MainWindowControler:
     def slider_frame1_event(self, value):
         print(int(value))
 
-    def button_frame1_add5s_pressed(self):
-        print("btn pressed")
+    def button_frame1_min5s_pressed(self):
+        print("btn min5s pressed")
         pass
 
     def button_frame1_play_pressed(self):
@@ -83,26 +85,26 @@ class MainWindowControler:
         self.view.window.video_frame1.update()
 
     def button_frame1_stop_pressed(self):
-        print("btn pressed")
+        print("btn stop pressed")
         pass
 
-    def button_frame1_min5s_pressed(self):
-        print("btn pressed")
+    def button_frame1_add5s_pressed(self):
+        print("btn add5s pressed")
         pass
 
     def slider_frame2_event(self, value):
         print(int(value))
 
     def button_frame2_switcher_pressed(self):
-        print("btn pressed")
+        print("btn switch pressed")
         pass
 
     def button_frame2_snapshot_pressed(self):
-        print("btn pressed")
+        print("btn snapshot pressed")
         pass
 
     def button_result_pressed(self):
-        print("btn pressed")
+        print("btn result pressed")
         pass
 
 
@@ -136,10 +138,53 @@ class MaskingControler:
         self.model = model
 
     def init_callbacks(self):
-        pass
+        # mask via mouse click bind
+        self.view.window.masking_canvas.bind("<Button 1>", self.get_coor)
 
-    def some_event_trigger(self):
-        pass
+        self.view.window.button_undo_masking.configure(
+            command=self.button_undo_masking_pressed
+        )
+        self.view.window.button_clear_masking.configure(
+            command=self.button_clear_masking_pressed
+        )
+        self.view.window.button_masking.configure(command=self.button_masking_pressed)
+
+    def button_undo_masking_pressed(self):
+        self.model.pop_mask_coordinate()
+        if len(self.model.mask_coordinate) != 0:
+            self.draw_mask()
+
+    def button_clear_masking_pressed(self):
+        self.model.clear_mask_coordinate()
+        self.delete_mask()
+
+    def button_masking_pressed(self):
+        print("Masked")
+        self.view.window.withdraw()
+        self.parent_controler.run(starting=False)
+
+    def get_coor(self, event):
+        mouse_xy = (event.x, event.y)
+        self.model.add_mask_coordinate(mouse_xy)
+        self.draw_mask()
+        print(mouse_xy)
+        print(self.model.mask_coordinate)
+
+    def draw_mask(self):
+        mask_coordinate = self.model.get_mask_coordinate()
+        self.view.window.masking_canvas.delete("mask_polygon")
+        self.view.window.masking_canvas.delete("mask_line")
+        if len(mask_coordinate) > 2:
+            self.view.window.masking_canvas.create_line(
+                mask_coordinate, tag="mask_line"
+            )
+            self.view.window.masking_canvas.create_polygon(
+                mask_coordinate, tag="mask_polygon"
+            )
+
+    def delete_mask(self):
+        self.view.window.masking_canvas.delete("mask_polygon")
+        self.view.window.masking_canvas.delete("mask_line")
 
     def run(self, parent_controler):
         self.parent_controler = parent_controler

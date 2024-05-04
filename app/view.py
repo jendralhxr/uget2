@@ -44,10 +44,10 @@ class MainWindowView:
             row=2, column=0, columnspan=5, padx=10, pady=(0, 10), sticky="ewn"
         )
 
-        self.window.button_frame1_add5s = customtkinter.CTkButton(
+        self.window.button_frame1_min5s = customtkinter.CTkButton(
             frame, width=50, text="-5s"
         )
-        self.window.button_frame1_add5s.grid(
+        self.window.button_frame1_min5s.grid(
             row=3, column=0, padx=10, pady=10, sticky="ew"
         )
 
@@ -72,10 +72,10 @@ class MainWindowView:
             row=3, column=3, padx=5, pady=10, sticky="ew"
         )
 
-        self.window.button_frame1_min5s = customtkinter.CTkButton(
+        self.window.button_frame1_add5s = customtkinter.CTkButton(
             frame, width=50, text="+5s"
         )
-        self.window.button_frame1_min5s.grid(
+        self.window.button_frame1_add5s.grid(
             row=3, column=4, padx=10, pady=10, sticky="ew"
         )
 
@@ -168,30 +168,33 @@ class MaskingView:
         self.image1 = Image.open("4879.png")
 
         img = ImageTk.PhotoImage(self.image1)
-        canvas = customtkinter.CTkCanvas(frame,width=int(640),height=int(480))
-        canvas.image = img
-        canvas.create_image(0,0,anchor='nw',image=img)
-        canvas.grid(row=0, columnspan=5, padx=10, pady=10, sticky="ew")
-        canvas.bind("<Button 1>", self.get_coor)
-        
+        self.window.masking_canvas = customtkinter.CTkCanvas(
+            frame, width=int(640), height=int(480)
+        )
+        self.window.masking_canvas.image = img
+        self.window.masking_canvas.create_image(0, 0, anchor="nw", image=img)
+        self.window.masking_canvas.grid(
+            row=0, columnspan=10, padx=10, pady=10, sticky="ew"
+        )
+
+        self.window.button_undo_masking = customtkinter.CTkButton(
+            frame, width=80, text="undo"
+        )
+        self.window.button_undo_masking.grid(
+            row=1, column=7, padx=10, pady=10, sticky="ew"
+        )
+
         self.window.button_clear_masking = customtkinter.CTkButton(
             frame, width=80, text="clear"
-        )   
+        )
         self.window.button_clear_masking.grid(
-            row=1, column=3, padx=10, pady=10, sticky="ew"
+            row=1, column=8, padx=10, pady=10, sticky="ew"
         )
 
         self.window.button_masking = customtkinter.CTkButton(
             frame, width=80, text="masking"
         )
-
-        self.window.button_masking.grid(
-            row=1, column=4, padx=10, pady=10, sticky="ew"
-        )
-
-    def get_coor(self, event):
-        mouse_xy = (event.x, event.y)
-        print(mouse_xy)
+        self.window.button_masking.grid(row=1, column=9, padx=10, pady=10, sticky="ew")
 
     def run(self, parent):
         self._build_gui(parent)
