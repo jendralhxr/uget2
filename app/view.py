@@ -165,9 +165,7 @@ class MaskingView:
         frame = customtkinter.CTkFrame(self.window)
         frame.place(relx=0.5, rely=0.5, anchor="c")
 
-        self.image1 = Image.open("4879.png")
-
-        img = ImageTk.PhotoImage(self.image1)
+        img = ImageTk.PhotoImage(self.start_frame_img)
         self.window.masking_canvas = customtkinter.CTkCanvas(
             frame, width=int(640), height=int(480)
         )
@@ -195,6 +193,9 @@ class MaskingView:
             frame, width=80, text="masking"
         )
         self.window.button_masking.grid(row=1, column=9, padx=10, pady=10, sticky="ew")
+
+    def set_start_frame_image(self, img):
+        self.start_frame_img = img
 
     def run(self, parent):
         self._build_gui(parent)

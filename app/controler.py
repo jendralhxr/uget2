@@ -9,8 +9,12 @@ class MainWindowControler:
         self.view = view
         self.config = config
         self.model = model
+        self.video_data = None
 
         self.init_callbacks()
+
+    def set_video_data(self, video_data):
+        self.video_data = video_data
 
     def bind_top_windows_controlers(self, controler_dict):
         self.top_controler = controler_dict
@@ -122,7 +126,16 @@ class OpenFileControler:
     def button_load_video_pressed(self):
         filename = filedialog.askopenfilename()
         print(f"file name is {filename}")
+        self.model.set_file_name(filename)
+
+        # load video data to the main controler
+        video_data = self.model.load_video()
+        self.parent_controler.set_video_data(video_data)
+
         self.view.window.withdraw()
+        self.parent_controler.top_controler["masking"].set_start_frame_image(
+            video_data.first_frame_img
+        )
         self.parent_controler.top_controler["masking"].run(self.parent_controler)
 
     def run(self, parent_controler):
@@ -185,6 +198,9 @@ class MaskingControler:
     def delete_mask(self):
         self.view.window.masking_canvas.delete("mask_polygon")
         self.view.window.masking_canvas.delete("mask_line")
+
+    def set_start_frame_image(self, img):
+        self.view.set_start_frame_image(img)
 
     def run(self, parent_controler):
         self.parent_controler = parent_controler
