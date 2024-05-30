@@ -17,8 +17,8 @@ class MainWindowView:
         frame.place(relx=0.5, rely=0.5, anchor="c")
 
         self.image1 = customtkinter.CTkImage(
-            light_image=Image.open("4879.png"),
-            dark_image=Image.open("4879.png"),
+            light_image=Image.open("assets/comot_loading.png"),
+            dark_image=Image.open("assets/comot_loading.png"),
             size=(int(640 * 0.75), int(480 * 0.75)),
         )
 
