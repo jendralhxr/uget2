@@ -174,6 +174,7 @@ class MaskingControler:
     def button_masking_pressed(self):
         print("Masked")
         self.view.window.withdraw()
+        self.parent_controler.video_data.mask_coordinate = self.model.mask_coordinate
         self.parent_controler.run(starting=False)
 
     def get_coor(self, event):

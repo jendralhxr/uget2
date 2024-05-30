@@ -26,6 +26,7 @@ class VideoData:
     first_frame_img: Image
     start_frame: int
     end_frame: int
+    mask_coordinate: list = None
 
 
 class OpenFileModel:
