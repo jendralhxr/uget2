@@ -2,6 +2,7 @@ import customtkinter
 from customtkinter import filedialog
 from PIL import Image
 from view import OpenFileView, MaskingView
+from PIL import Image, ImageTk
 
 
 class MainWindowControler:
@@ -9,12 +10,11 @@ class MainWindowControler:
         self.view = view
         self.config = config
         self.model = model
-        self.video_data = None
 
         self.init_callbacks()
 
     def set_video_data(self, video_data):
-        self.video_data = video_data
+        self.model.set_video_data(video_data)
 
     def bind_top_windows_controlers(self, controler_dict):
         self.top_controler = controler_dict
@@ -24,8 +24,9 @@ class MainWindowControler:
             self.open_video()
             self.view.run()
         else:
+            self.model.instantiate_video_player(self.view.window.video_frame1)
             self.view.window.deiconify()
-
+            
     def open_video(self):
         self.top_controler["open_file"].run(self)
         self.view.window.withdraw()
@@ -71,26 +72,13 @@ class MainWindowControler:
         pass
 
     def button_frame1_play_pressed(self):
-        self.view.image1 = customtkinter.CTkImage(
-            light_image=Image.open("1160s.png"),
-            dark_image=Image.open("1160s.png"),
-            size=(int(640 * 0.75), int(480 * 0.75)),
-        )
-        self.view.window.video_frame1.configure(image=self.view.image1)
-        self.view.window.video_frame1.update()
+        self.model.video_player.play()
 
     def button_frame1_pause_pressed(self):
-        self.view.image1 = customtkinter.CTkImage(
-            light_image=Image.open("4879.png"),
-            dark_image=Image.open("4879.png"),
-            size=(int(640 * 0.75), int(480 * 0.75)),
-        )
-        self.view.window.video_frame1.configure(image=self.view.image1)
-        self.view.window.video_frame1.update()
+        self.model.video_player.pause()
 
     def button_frame1_stop_pressed(self):
-        print("btn stop pressed")
-        pass
+        self.model.video_player.stop()
 
     def button_frame1_add5s_pressed(self):
         print("btn add5s pressed")
@@ -174,7 +162,7 @@ class MaskingControler:
     def button_masking_pressed(self):
         print("Masked")
         self.view.window.withdraw()
-        self.parent_controler.video_data.mask_coordinate = self.model.mask_coordinate
+        self.parent_controler.model.video_data.mask_coordinate = self.model.mask_coordinate
         self.parent_controler.run(starting=False)
 
     def get_coor(self, event):

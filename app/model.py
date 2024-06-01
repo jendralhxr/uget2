@@ -6,6 +6,7 @@ import cmapy
 import ffmpegcv
 from PIL import Image
 from dataclasses import dataclass
+import customtkinter
 
 
 # Utilities
@@ -14,6 +15,48 @@ def get_image_from_cap(cap):
     cv_img = cv.cvtColor(cv_img, cv.COLOR_BGR2RGB)
     pil_img = Image.fromarray(cv_img)
     return pil_img
+
+
+class VideoPlayer():
+
+    def __init__(self, video_data, tkinter_label) -> None:
+        self.video_data = video_data
+        self.current_frame = 0
+        self.tkinter_label = tkinter_label
+        self.cap = cv.VideoCapture(video_data.file_name)
+        self.playing = True
+
+    def show_frame(self, frame_i):
+        self.cap.set(cv.CAP_PROP_POS_FRAMES, float(frame_i))
+        pil_img = get_image_from_cap(self.cap)
+        frame_image = customtkinter.CTkImage(
+            light_image=pil_img,
+            dark_image=pil_img,
+            size=(int(640 * 0.75), int(480 * 0.75)),
+        )
+        self.tkinter_label.configure(image=frame_image)
+        self.tkinter_label.update()
+
+    def play(self):
+        self.playing = True
+        start_frame = self.current_frame
+        print("play clicked")
+        for frame_i in range(start_frame, self.video_data.end_frame):
+            print(f"showing frame {frame_i}")
+            self.show_frame(frame_i)
+            self.current_frame +=1
+            if self.playing == False:
+                break
+ 
+    def pause(self):
+        self.playing=False
+        self.show_frame(self.current_frame)
+
+    def stop(self):
+        self.playing=False
+        self.show_frame(self.video_data.start_frame)
+        self.current_frame = self.video_data.start_frame
+
 
 
 @dataclass
@@ -63,7 +106,17 @@ class OpenFileModel:
 
 
 class MainWindowModel:
-    pass
+
+    def __init__(self) -> None:
+        self.video_data = None
+        self.video_player = None
+    
+    def set_video_data(self, video_data):
+        self.video_data = video_data
+
+    def instantiate_video_player(self, tkinter_label):
+        self.video_player = VideoPlayer(self.video_data, tkinter_label)
+
 
 
 class MaskingModel:
