@@ -68,8 +68,9 @@ class MainWindowControler:
         print(int(value))
 
     def button_frame1_min5s_pressed(self):
-        print("btn min5s pressed")
-        pass
+        current_frame = self.model.video_player.current_frame
+        self.model.video_player.set_frame_to(current_frame - 5)
+        self.model.video_player.pause()
 
     def button_frame1_play_pressed(self):
         self.model.video_player.play()
@@ -81,8 +82,9 @@ class MainWindowControler:
         self.model.video_player.stop()
 
     def button_frame1_add5s_pressed(self):
-        print("btn add5s pressed")
-        pass
+        current_frame = self.model.video_player.current_frame
+        self.model.video_player.set_frame_to(current_frame + 5)
+        self.model.video_player.pause()
 
     def slider_frame2_event(self, value):
         print(int(value))

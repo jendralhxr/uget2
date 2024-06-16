@@ -37,6 +37,10 @@ class VideoPlayer():
         self.tkinter_label.configure(image=frame_image)
         self.tkinter_label.update()
 
+    def set_frame_to(self, frame_i):
+        self.show_frame(frame_i)
+        self.current_frame = frame_i
+
     def play(self):
         self.playing = True
         start_frame = self.current_frame
