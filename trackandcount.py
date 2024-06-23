@@ -67,9 +67,8 @@ while (key != ord('s')):
         cv.setMouseCallback(window_name, lambda *args : None)
         cv.destroyAllWindows()    
         key=ord('-') # unlikely to press this 
-        fourcc = 'h264'
-        vid_cue = ffmpegcv.VideoWriter(sys.argv[4], fourcc, fps, (width, height))
-        vid_heat = ffmpegcv.VideoWriter(sys.argv[5], fourcc, fps, (width, height))
+        vid_cue = cv.VideoWriter(sys.argv[4],cv.VideoWriter_fourcc('M','J','P','G'), 60, (width,height))
+        vid_heat = cv.VideoWriter(sys.argv[5],cv.VideoWriter_fourcc('M','J','P','G'), 60, (width,height))
         break
 
 
@@ -133,10 +132,10 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
     hmy = int(hmoments["m01"] / hmass)
     cv.circle(heatmap_render, (hmx,hmy), 4, (0,220,), -1)
     
-    #cv.imshow("treshold", cue_raw)
-    #cv.imshow("deteksi", render)
-    #cv.imshow("heatmap", heatmap_render)
-    #key = cv.waitKey(1) & 0xff
+    cv.imshow("treshold", cue_raw)
+    cv.imshow("deteksi", render)
+    cv.imshow("heatmap", heatmap_render)
+    key = cv.waitKey(1) & 0xff
     vid_cue.write(render)
     vid_heat.write(heatmap_render)
     
@@ -164,8 +163,8 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
     elif key==ord('r'): # reset video from the beginning
         vid_cue.release()
         vid_heat.release()
-        vid_cue = ffmpegcv.VideoWriter(sys.argv[4], fourcc, fps, (width, height))
-        vid_heat = ffmpegcv.VideoWriter(sys.argv[5], fourcc, fps, (width, height))
+        vid_cue = cv.VideoWriter(sys.argv[4],cv.VideoWriter_fourcc('M','J','P','G'), 60, (width,height))
+        vid_heat = cv.VideoWriter(sys.argv[5],cv.VideoWriter_fourcc('M','J','P','G'), 60, (width,height))
         framenum= 0
         cap.set(cv.CAP_PROP_POS_FRAMES, float(0.0))
         
