@@ -67,8 +67,9 @@ while (key != ord('s')):
         cv.setMouseCallback(window_name, lambda *args : None)
         cv.destroyAllWindows()    
         key=ord('-') # unlikely to press this 
-        vid_cue = cv.VideoWriter(sys.argv[4],cv.VideoWriter_fourcc('M','J','P','G'), 60, (width,height))
-        vid_heat = cv.VideoWriter(sys.argv[5],cv.VideoWriter_fourcc('M','J','P','G'), 60, (width,height))
+        vid_cue = cv.VideoWriter(sys.argv[4],cv.VideoWriter_fourcc('M','P','4','V'), 60, (width,height))
+        vid_heat = cv.VideoWriter(sys.argv[5],cv.VideoWriter_fourcc('M','P','4','V'), 60, (width,height))
+        vid_thre = cv.VideoWriter(sys.argv[6],cv.VideoWriter_fourcc('M','P','4','V'), 60, (width,height))
         break
 
 
@@ -88,8 +89,8 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
     
     # uget2 detection: background substraction and thresholding
     cue = cv.absdiff(current, ref)
-    #ret, cue_tri = cv.threshold(cue, 0, 250, cv.THRESH_TRIANGLE);
-    ret, cue_raw= cv.threshold(cue,threshold_value,250,cv.THRESH_BINARY)
+    ret, cue_raw = cv.threshold(cue, 0, 250, cv.THRESH_TRIANGLE);
+    #ret, cue_raw= cv.threshold(cue,threshold_value,250,cv.THRESH_BINARY)
     cue_raw = cv.bitwise_and(cue_raw, mask)
     #cue_mean = cv.adaptiveThreshold(cue,250,cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY,11,2)
     #cue_gauss = cv.adaptiveThreshold(cue,250,cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY,11,2)
@@ -101,7 +102,9 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
     render = current_col
     # LOKA: atau pakai overlay yang lebih cantik
     for c in contours:
-        cv.fillPoly(render, pts=c, color=(23,116,255)) # pumpkin orange
+        cv.fillPoly(render, pts=c, color=(0,0,180)) # pumpkin orange
+        cv.drawContours(render, c, -1, (0,0,180), thickness=2)
+
     
     # averaging the count over a second
     tempcount[framenum%60]= len(contours)
@@ -122,7 +125,7 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
         mass=1
     cmx = int(cmoments["m10"] / mass)
     cmy = int(cmoments["m01"] / mass)
-    cv.circle(render, (cmx,cmy), 4, (0,0,220), -1)
+    cv.circle(render, (cmx,cmy), 4, (240,0,0), -1)
     # cumulative heatmap
     hmoments= cv.moments(heatmap)
     hmass= hmoments["m00"]
@@ -130,14 +133,17 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
         hmass=1
     hmx = int(hmoments["m10"] / hmass)
     hmy = int(hmoments["m01"] / hmass)
-    cv.circle(heatmap_render, (hmx,hmy), 4, (0,220,), -1)
+    cv.circle(heatmap_render, (cmx,cmy), 4, (240,0,0), -1)
     
     cv.imshow("treshold", cue_raw)
     cv.imshow("deteksi", render)
     cv.imshow("heatmap", heatmap_render)
     key = cv.waitKey(1) & 0xff
+    
     vid_cue.write(render)
     vid_heat.write(heatmap_render)
+    thre = cv.cvtColor(cue_raw, cv.COLOR_GRAY2BGR)
+    vid_thre.write(thre)
     
     if (framenum%60==0):
         print(f'{framenum/60:.3f},{len(contours)},{np.min(heatmap)},{np.max(heatmap)},{cmx},{cmy},{hmx},{hmy},{int(framenum/60)},{np.average(tempcount)}')
@@ -163,8 +169,8 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
     elif key==ord('r'): # reset video from the beginning
         vid_cue.release()
         vid_heat.release()
-        vid_cue = cv.VideoWriter(sys.argv[4],cv.VideoWriter_fourcc('M','J','P','G'), 60, (width,height))
-        vid_heat = cv.VideoWriter(sys.argv[5],cv.VideoWriter_fourcc('M','J','P','G'), 60, (width,height))
+        vid_cue = cv.VideoWriter(sys.argv[4],cv.VideoWriter_fourcc('M','P','4','V'), 60, (width,height))
+        vid_heat = cv.VideoWriter(sys.argv[5],cv.VideoWriter_fourcc('M','P','4','V'), 60, (width,height))
         framenum= 0
         cap.set(cv.CAP_PROP_POS_FRAMES, float(0.0))
         
