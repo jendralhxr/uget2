@@ -19,14 +19,17 @@ def get_image_from_cap(cap):
 
 class VideoPlayer():
 
-    def __init__(self, video_data, tkinter_label) -> None:
+    def __init__(self, video_data, tkinter_label, tkinter_slider) -> None:
         self.video_data = video_data
         self.current_frame = 0
         self.tkinter_label = tkinter_label
+        self.tkinter_slider = tkinter_slider
         self.cap = cv.VideoCapture(video_data.file_name)
         self.playing = True
 
-    def show_frame(self, frame_i):
+    def show_frame(self, frame_i, set_slider=True):
+        if set_slider:
+            self.tkinter_slider.set(frame_i)
         self.cap.set(cv.CAP_PROP_POS_FRAMES, float(frame_i))
         pil_img = get_image_from_cap(self.cap)
         frame_image = customtkinter.CTkImage(
@@ -36,9 +39,10 @@ class VideoPlayer():
         )
         self.tkinter_label.configure(image=frame_image)
         self.tkinter_label.update()
+        
 
-    def set_frame_to(self, frame_i):
-        self.show_frame(frame_i)
+    def set_frame_to(self, frame_i, set_slider=True):
+        self.show_frame(frame_i, set_slider)
         self.current_frame = frame_i
 
     def play(self):
@@ -118,9 +122,8 @@ class MainWindowModel:
     def set_video_data(self, video_data):
         self.video_data = video_data
 
-    def instantiate_video_player(self, tkinter_label):
-        self.video_player = VideoPlayer(self.video_data, tkinter_label)
-
+    def instantiate_video_player(self, tkinter_label, tkinter_slider):
+        self.video_player = VideoPlayer(self.video_data, tkinter_label, tkinter_slider)
 
 
 class MaskingModel:
@@ -143,6 +146,15 @@ class MaskingModel:
 
     def get_mask_coordinate(self):
         return list(chain(self.mask_coordinate))
+
+    def build_mask_from_coordinate(self, height, width):
+        mask_contour= np.array(self.mask_coordinate)
+        mask_col = np.full([height, width, 3], (255,255,255), dtype=np.uint8)
+        mask = np.full([height, width], 255, dtype=np.uint8)
+        cv.fillPoly(mask_col, pts=[mask_contour], color=(0,0,0))
+        cv.fillPoly(mask, pts=[mask_contour], color=(0))
+
+        # cv.bitwise_and(current_col, mask_col)
 
 
 class ResultModel:

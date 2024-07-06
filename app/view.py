@@ -6,7 +6,7 @@ from PIL import Image, ImageTk
 class MainWindowView:
     def __init__(self):
         super().__init__()
-        self._show_gui("Uget-Uget Counting ver 0.1")
+        self._show_gui("COMOT ver 0.1")
 
     def _show_gui(self, title):
         self.window = customtkinter.CTk()
@@ -132,12 +132,12 @@ class OpenFileView:
     def _build_gui(self, parent):
         self.window = customtkinter.CTkToplevel(parent)
         self.window.title(self.title)
-        self.window.geometry("400x180")
+        self.window.geometry("450x180")
         self.window.grid_columnconfigure(0, weight=1)
         self.window.grid_rowconfigure(0, weight=1)
 
         self.window.label = customtkinter.CTkLabel(
-            self.window, text="Welcome to Uget-Uget Counting ver 0.1"
+            self.window, text="Welcome to Cell Counting and Motility Observation Tool ver 0.1"
         )
         self.window.label.grid(row=0, columnspan=3, padx=10, pady=10, sticky="ew")
         self.window.button_load_video = customtkinter.CTkButton(
@@ -155,7 +155,7 @@ class OpenFileView:
 class MaskingView:
     def __init__(self):
         super().__init__()
-        self.title = "Masking - Uget-Uget Counting ver 0.1"
+        self.title = "Masking - COMOT ver 0.1"
 
     def _build_gui(self, parent):
         self.window = customtkinter.CTkToplevel(parent)

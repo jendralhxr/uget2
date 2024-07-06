@@ -24,7 +24,15 @@ class MainWindowControler:
             self.open_video()
             self.view.run()
         else:
-            self.model.instantiate_video_player(self.view.window.video_frame1)
+            self.model.instantiate_video_player(self.view.window.video_frame1, self.view.window.slider_frame1)
+
+            # set slider params
+            self.view.window.slider_frame1._from_ = self.model.video_data.start_frame
+            self.view.window.slider_frame1._to = self.model.video_data.end_frame
+            self.view.window.slider_frame1._number_of_steps = self.model.video_data.end_frame
+            self.view.window.slider_frame1.set(self.model.video_data.start_frame)
+
+            self.model.video_player.show_frame(self.model.video_data.start_frame)
             self.view.window.deiconify()
             
     def open_video(self):
@@ -65,6 +73,11 @@ class MainWindowControler:
         self.view.window.button_result.configure(command=self.button_result_pressed)
 
     def slider_frame1_event(self, value):
+        print("slider event")
+        if self.model.video_player.playing:
+            self.model.video_player.pause()
+        self.model.video_player.set_frame_to(int(value), set_slider=False)
+        self.view.window.slider_frame1.set(int(value))
         print(int(value))
 
     def button_frame1_min5s_pressed(self):
