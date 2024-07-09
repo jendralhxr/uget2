@@ -43,11 +43,15 @@ class VideoPlayer():
 
     def set_frame_to(self, frame_i, set_slider=True):
         self.show_frame(frame_i, set_slider)
-        self.current_frame = frame_i
+        if set_slider:
+            self.current_frame = frame_i
+        else: 
+            self.current_frame = int(self.tkinter_slider.get())
 
     def play(self):
         self.playing = True
-        start_frame = self.current_frame
+        self.tkinter_slider
+        start_frame = int(self.tkinter_slider.get())
         print("play clicked")
         for frame_i in range(start_frame, self.video_data.end_frame):
             print(f"showing frame {frame_i}")

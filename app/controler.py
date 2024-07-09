@@ -77,7 +77,6 @@ class MainWindowControler:
         if self.model.video_player.playing:
             self.model.video_player.pause()
         self.model.video_player.set_frame_to(int(value), set_slider=False)
-        self.view.window.slider_frame1.set(int(value))
         print(int(value))
 
     def button_frame1_min5s_pressed(self):
