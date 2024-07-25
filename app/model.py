@@ -4,7 +4,7 @@ import cv2 as cv
 import sys
 import cmapy
 import ffmpegcv
-from PIL import Image
+from PIL import Image, ImageDraw
 from dataclasses import dataclass
 import customtkinter
 
@@ -16,7 +16,16 @@ def get_image_from_cap(cap):
     pil_img = Image.fromarray(cv_img)
     return pil_img
 
+def draw_mask_on_image(img, mask_coordinate):
+    draw = ImageDraw.Draw(img)
+    draw.polygon(mask_coordinate, outline="red", fill="red")
 
+def build_mask_from_coordinate(self, height, width):
+    mask_contour= np.array(self.mask_coordinate)
+    mask = np.full([height, width], 255, dtype=np.uint8)
+    cv.fillPoly(mask, pts=[mask_contour], color=(0))
+    return mask
+    
 class VideoPlayer():
 
     def __init__(self, video_data, tkinter_label, tkinter_slider) -> None:
@@ -32,6 +41,9 @@ class VideoPlayer():
             self.tkinter_slider.set(frame_i)
         self.cap.set(cv.CAP_PROP_POS_FRAMES, float(frame_i))
         pil_img = get_image_from_cap(self.cap)
+
+        draw_mask_on_image(pil_img, self.video_data.mask_coordinate)
+
         frame_image = customtkinter.CTkImage(
             light_image=pil_img,
             dark_image=pil_img,
@@ -82,6 +94,7 @@ class VideoData:
     start_frame: int
     end_frame: int
     mask_coordinate: list = None
+    
 
 
 class OpenFileModel:
@@ -150,15 +163,6 @@ class MaskingModel:
 
     def get_mask_coordinate(self):
         return list(chain(self.mask_coordinate))
-
-    def build_mask_from_coordinate(self, height, width):
-        mask_contour= np.array(self.mask_coordinate)
-        mask_col = np.full([height, width, 3], (255,255,255), dtype=np.uint8)
-        mask = np.full([height, width], 255, dtype=np.uint8)
-        cv.fillPoly(mask_col, pts=[mask_contour], color=(0,0,0))
-        cv.fillPoly(mask, pts=[mask_contour], color=(0))
-
-        # cv.bitwise_and(current_col, mask_col)
 
 
 class ResultModel:
