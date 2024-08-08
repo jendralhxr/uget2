@@ -7,7 +7,11 @@ import ffmpegcv
 from PIL import Image, ImageDraw
 from dataclasses import dataclass
 import customtkinter
+import time
 
+COEF_FADE_IN  = 1.00
+COEF_FADE_OUT = 0.90
+HEATMAP_CEIL= COEF_FADE_IN * 60 
 
 # Utilities
 def get_image_from_cap(cap):
@@ -20,21 +24,66 @@ def draw_mask_on_image(img, mask_coordinate):
     draw = ImageDraw.Draw(img)
     draw.polygon(mask_coordinate, outline="red", fill="red")
 
-def build_mask_from_coordinate(self, height, width):
-    mask_contour= np.array(self.mask_coordinate)
+def build_mask_from_coordinate(height, width, mask_coordinate):
+    mask_contour= np.array(mask_coordinate)
     mask = np.full([height, width], 255, dtype=np.uint8)
     cv.fillPoly(mask, pts=[mask_contour], color=(0))
     return mask
     
 class VideoPlayer():
 
-    def __init__(self, video_data, tkinter_label, tkinter_slider) -> None:
+    def __init__(self, video_data, tkinter_frame1, tkinter_frame2, tkinter_slider) -> None:
         self.video_data = video_data
         self.current_frame = 0
-        self.tkinter_label = tkinter_label
+        self.tkinter_frame1 = tkinter_frame1
+        self.tkinter_frame2 = tkinter_frame2
         self.tkinter_slider = tkinter_slider
         self.cap = cv.VideoCapture(video_data.file_name)
         self.playing = True
+
+    def get_heat_map(self, cue_raw):
+        height = self.video_data.height
+        width = self.video_data.width
+        heatmap = np.zeros([height, width], dtype=np.single)
+        heatmap_cue = np.full([height, width], 255, dtype=np.uint8)
+
+        heatmap= heatmap + (COEF_FADE_IN * cue_raw/250)
+        heatmap= heatmap - COEF_FADE_OUT
+        heatmap= np.clip(heatmap, 0, None)
+        heatmapf = np.clip(heatmap, 0, HEATMAP_CEIL) # saturated heatmap, only for display    
+        heatmapf.itemset((0,0), HEATMAP_CEIL)
+        cv.normalize(heatmapf, heatmap_cue, 0, 255, cv.NORM_MINMAX, cv.CV_8UC1)
+        heatmap_render = cv.applyColorMap(heatmap_cue, cmapy.cmap('nipy_spectral'))
+
+        return Image.fromarray(heatmap_render)
+
+    def calc_binary(self, cap):
+
+        threshold_value = 40
+        height = self.video_data.height
+        width = self.video_data.width
+        mask = build_mask_from_coordinate(height,width, 
+                        self.video_data.mask_coordinate)
+
+        ret, current_col = cap.read()
+        ref= cv.cvtColor(current_col, cv.COLOR_BGR2GRAY) 
+
+        current = cv.cvtColor(current_col, cv.COLOR_BGR2GRAY)
+        #cue = cv.bitwise_and(current, mask)
+        
+        ref = cv.bitwise_and(ref, mask)
+        for j in range(height):
+            for i in range(width):
+                if current.item(j,i) > ref.item(j,i):
+                    ref.itemset((j,i), current.item(j,i))
+
+        
+        cue = cv.absdiff(current, ref)
+
+        #ret, cue_bin = cv.threshold(cue, 0, 250, cv.THRESH_TRIANGLE)
+        ret, cue_bin= cv.threshold(cue,threshold_value,250,cv.THRESH_BINARY)
+        cue_bin = cv.bitwise_and(cue_bin, mask)
+        return Image.fromarray(cue_bin), cue_bin
 
     def show_frame(self, frame_i, set_slider=True):
         if set_slider:
@@ -49,8 +98,20 @@ class VideoPlayer():
             dark_image=pil_img,
             size=(int(640 * 0.75), int(480 * 0.75)),
         )
-        self.tkinter_label.configure(image=frame_image)
-        self.tkinter_label.update()
+        self.tkinter_frame1.configure(image=frame_image)
+        self.tkinter_frame1.update()
+
+        pil_bin_img, cue_bin = self.calc_binary(self.cap)
+
+        pil_bin_img = self.get_heat_map(cue_bin)
+
+        bin_image = customtkinter.CTkImage(
+            light_image=pil_bin_img,
+            dark_image=pil_bin_img,
+            size=(int(640 * 0.75), int(480 * 0.75)),
+        )
+        self.tkinter_frame2.configure(image=bin_image)
+        self.tkinter_frame2.update()
         
 
     def set_frame_to(self, frame_i, set_slider=True):
@@ -66,15 +127,19 @@ class VideoPlayer():
         start_frame = int(self.tkinter_slider.get())
         print("play clicked")
         for frame_i in range(start_frame, self.video_data.end_frame):
+            time.sleep(1/30)
             print(f"showing frame {frame_i}")
             self.show_frame(frame_i)
             self.current_frame +=1
             if self.playing == False:
                 break
  
-    def pause(self):
+    def pause(self, frame_i=None):
         self.playing=False
-        self.show_frame(self.current_frame)
+        if frame_i:
+            self.show_frame(int(frame_i))
+        else:
+            self.show_frame(self.current_frame)
 
     def stop(self):
         self.playing=False
@@ -139,8 +204,8 @@ class MainWindowModel:
     def set_video_data(self, video_data):
         self.video_data = video_data
 
-    def instantiate_video_player(self, tkinter_label, tkinter_slider):
-        self.video_player = VideoPlayer(self.video_data, tkinter_label, tkinter_slider)
+    def instantiate_video_player(self, tkinter_frame1, tkinter_frame2, tkinter_slider):
+        self.video_player = VideoPlayer(self.video_data, tkinter_frame1, tkinter_frame2, tkinter_slider)
 
 
 class MaskingModel:
