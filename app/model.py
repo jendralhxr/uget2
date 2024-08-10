@@ -9,6 +9,8 @@ from dataclasses import dataclass
 import customtkinter
 import time
 
+import matplotlib.pyplot as plt
+
 COEF_FADE_IN  = 1.00
 COEF_FADE_OUT = 0.90
 HEATMAP_CEIL= COEF_FADE_IN * 60 
@@ -71,19 +73,22 @@ class VideoPlayer():
         current = cv.cvtColor(current_col, cv.COLOR_BGR2GRAY)
         #cue = cv.bitwise_and(current, mask)
         
-        ref = cv.bitwise_and(ref, mask)
+        ref_masked = ref*mask
         for j in range(height):
             for i in range(width):
-                if current.item(j,i) > ref.item(j,i):
-                    ref.itemset((j,i), current.item(j,i))
+                if current.item(j,i) > ref_masked.item(j,i):
+                    ref_masked.itemset((j,i), current.item(j,i))
 
         
-        cue = cv.absdiff(current, ref)
+        cue = cv.absdiff(current, ref_masked)
 
-        #ret, cue_bin = cv.threshold(cue, 0, 250, cv.THRESH_TRIANGLE)
-        ret, cue_bin= cv.threshold(cue,threshold_value,250,cv.THRESH_BINARY)
+        ret, cue_bin = cv.threshold(cue, 0, 250, cv.THRESH_TRIANGLE)
+        #ret, cue_bin= cv.threshold(cue,threshold_value,250,cv.THRESH_BINARY)
         cue_bin = cv.bitwise_and(cue_bin, mask)
-        return Image.fromarray(cue_bin), cue_bin
+        img_bin = Image.fromarray(cue_bin)
+        img_rgb = img_bin.convert('RGB')
+        #breakpoint()
+        return img_rgb, cue_bin
 
     def show_frame(self, frame_i, set_slider=True):
         if set_slider:
@@ -103,7 +108,7 @@ class VideoPlayer():
 
         pil_bin_img, cue_bin = self.calc_binary(self.cap)
 
-        pil_bin_img = self.get_heat_map(cue_bin)
+        #pil_bin_img = self.get_heat_map(cue_bin)
 
         bin_image = customtkinter.CTkImage(
             light_image=pil_bin_img,
