@@ -70,7 +70,7 @@ class VideoPlayer():
         ret, current_col = cap.read()
         current= cv.cvtColor(current_col, cv.COLOR_BGR2GRAY) 
         
-        # updating the reference 
+        # updating the reference/background image
         for y in range(height):
             for x in range(width):
                 #self.video_data.ref_image.getpixel((x,y))
@@ -78,23 +78,11 @@ class VideoPlayer():
                     self.video_data.ref_image.putpixel((x,y), current.item(y,x))
 
         cue = cv.absdiff(current, np.array(self.video_data.ref_image))
-        #cue = cv.bitwise_and(cue, mask)
-
-        #ret, cue_bin = cv.threshold(cue, 0, 250, cv.THRESH_TRIANGLE)
+        cue = cv.bitwise_and(cue, mask)
+        ret, cue = cv.threshold(cue, 0, 200, cv.THRESH_TRIANGLE)
         #ret, cue_bin= cv.threshold(cue,threshold_value,250,cv.THRESH_BINARY)
-        #cue_bin = cv.bitwise_and(cue_bin, mask)
-        #breakpoint()
+        return Image.fromarray(cue).convert('RGB'), cue
         
-        
-        #img_bin = Image.fromarray(cue_bin)
-        #img_rgb = img_bin.convert('RGB')
-        
-        render= cue
-        return Image.fromarray(render).convert('RGB'), render
-        
-        #return self.video_data.ref_image.convert('RGB'), render
-        #return img_rgb, cue_bin
-
     def show_frame(self, frame_i, set_slider=True):
         if set_slider:
             self.tkinter_slider.set(frame_i)
