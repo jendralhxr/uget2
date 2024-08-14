@@ -137,7 +137,7 @@ class OpenFileControler:
 
         self.view.window.withdraw()
         self.parent_controler.top_controler["masking"].set_start_frame_image(
-            video_data.first_frame_img
+            video_data.ref_image
         )
         self.parent_controler.top_controler["masking"].run(self.parent_controler)
 

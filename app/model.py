@@ -68,27 +68,32 @@ class VideoPlayer():
                         self.video_data.mask_coordinate)
 
         ret, current_col = cap.read()
-        ref= cv.cvtColor(current_col, cv.COLOR_BGR2GRAY) 
-
-        current = cv.cvtColor(current_col, cv.COLOR_BGR2GRAY)
-        #cue = cv.bitwise_and(current, mask)
+        current= cv.cvtColor(current_col, cv.COLOR_BGR2GRAY) 
         
-        ref_masked = ref*mask
-        for j in range(height):
-            for i in range(width):
-                if current.item(j,i) > ref_masked.item(j,i):
-                    ref_masked.itemset((j,i), current.item(j,i))
+        # updating the reference 
+        for y in range(height):
+            for x in range(width):
+                #self.video_data.ref_image.getpixel((x,y))
+                if current.item(y,x) > self.video_data.ref_image.getpixel((x,y)):
+                    self.video_data.ref_image.putpixel((x,y), current.item(y,x))
 
-        
-        cue = cv.absdiff(current, ref_masked)
+        cue = cv.absdiff(current, np.array(self.video_data.ref_image))
+        #cue = cv.bitwise_and(cue, mask)
 
-        ret, cue_bin = cv.threshold(cue, 0, 250, cv.THRESH_TRIANGLE)
+        #ret, cue_bin = cv.threshold(cue, 0, 250, cv.THRESH_TRIANGLE)
         #ret, cue_bin= cv.threshold(cue,threshold_value,250,cv.THRESH_BINARY)
-        cue_bin = cv.bitwise_and(cue_bin, mask)
-        img_bin = Image.fromarray(cue_bin)
-        img_rgb = img_bin.convert('RGB')
+        #cue_bin = cv.bitwise_and(cue_bin, mask)
         #breakpoint()
-        return img_rgb, cue_bin
+        
+        
+        #img_bin = Image.fromarray(cue_bin)
+        #img_rgb = img_bin.convert('RGB')
+        
+        render= cue
+        return Image.fromarray(render).convert('RGB'), render
+        
+        #return self.video_data.ref_image.convert('RGB'), render
+        #return img_rgb, cue_bin
 
     def show_frame(self, frame_i, set_slider=True):
         if set_slider:
@@ -160,7 +165,7 @@ class VideoData:
     height: int
     fps: int
     frame_length: int
-    first_frame_img: Image
+    ref_image: Image
     start_frame: int
     end_frame: int
     mask_coordinate: list = None
@@ -192,11 +197,10 @@ class OpenFileModel:
             height=height,
             fps=fps,
             frame_length=frame_length,
-            first_frame_img=pil_img,
+            ref_image=pil_img.convert("L"),
             start_frame=startframe,
             end_frame=lastframe,
         )
-
         return video_data
 
 
