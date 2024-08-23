@@ -42,6 +42,7 @@ class VideoPlayer():
         self.tkinter_slider = tkinter_slider
         self.cap = cv.VideoCapture(video_data.file_name)
         self.playing = True
+        self.mode = "binary" #or "heatmap"
 
     def get_heat_map(self, cue_raw):
         height = self.video_data.height
@@ -49,6 +50,7 @@ class VideoPlayer():
         heatmap = np.zeros([height, width], dtype=np.single)
         heatmap_cue = np.full([height, width], 255, dtype=np.uint8)
 
+        #breakpoint()
         heatmap= heatmap + (COEF_FADE_IN * cue_raw/250)
         heatmap= heatmap - COEF_FADE_OUT
         heatmap= np.clip(heatmap, 0, None)
@@ -56,8 +58,7 @@ class VideoPlayer():
         heatmapf.itemset((0,0), HEATMAP_CEIL)
         cv.normalize(heatmapf, heatmap_cue, 0, 255, cv.NORM_MINMAX, cv.CV_8UC1)
         heatmap_render = cv.applyColorMap(heatmap_cue, cmapy.cmap('nipy_spectral'))
-
-        return Image.fromarray(heatmap_render)
+        return Image.fromarray(heatmap_render).convert('RGB')
 
     def calc_binary(self, cap):
 
@@ -101,7 +102,8 @@ class VideoPlayer():
 
         pil_bin_img, cue_bin = self.calc_binary(self.cap)
 
-        #pil_bin_img = self.get_heat_map(cue_bin)
+        if self.mode == "heatmap":
+            pil_bin_img = self.get_heat_map(cue_bin)
 
         bin_image = customtkinter.CTkImage(
             light_image=pil_bin_img,

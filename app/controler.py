@@ -100,12 +100,17 @@ class MainWindowControler:
         self.model.video_player.pause()
 
     def slider_frame2_event(self, value):
-        print(int(value))
 
+        print(int(value))
     def button_frame2_switcher_pressed(self):
         print("btn switch pressed")
-        pass
-
+        if self.model.video_player.mode == "binary":
+            self.model.video_player.mode = "heatmap"
+            self.view.window.button_frame2_switcher.configure(text="Heatmap")
+        else:
+            self.model.video_player.mode = "binary"
+            self.view.window.button_frame2_switcher.configure(text="Binary")
+        
     def button_frame2_snapshot_pressed(self):
         print("btn snapshot pressed")
         pass
