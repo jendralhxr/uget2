@@ -8,6 +8,9 @@ from PIL import Image, ImageDraw
 from dataclasses import dataclass
 import customtkinter
 import time
+import copy
+from sys import getsizeof
+from matplotlib import cm
 
 import matplotlib.pyplot as plt
 
@@ -31,6 +34,24 @@ def build_mask_from_coordinate(height, width, mask_coordinate):
     mask = np.full([height, width], 255, dtype=np.uint8)
     cv.fillPoly(mask, pts=[mask_contour], color=(0))
     return mask
+
+def get_frames(cap, start_frame, end_frame):
+    cap.set(cv.CAP_PROP_POS_FRAMES, float(start_frame))
+    frames = [cap.read()[1] for _ in range(end_frame-start_frame)]
+    return frames
+
+def precomp_ref(frames):
+    ref_image_precomputed = []
+    ref = cv.cvtColor(frames[0], cv.COLOR_BGR2GRAY) 
+    for f in frames[1:]:
+        current= cv.cvtColor(f, cv.COLOR_BGR2GRAY) 
+        ref_image_np = np.array(ref)
+        current_np = np.array(current)
+        np.maximum(ref_image_np, current_np, out=ref_image_np)
+        ref_image = Image.fromarray(ref_image_np)
+        ref_image_precomputed.append(ref_image)
+    return ref_image_precomputed
+
     
 class VideoPlayer():
 
@@ -43,42 +64,39 @@ class VideoPlayer():
         self.cap = cv.VideoCapture(video_data.file_name)
         self.playing = True
         self.mode = "binary" #or "heatmap"
+        self.current_processed_image = None
 
-    def get_heat_map(self, cue_raw):
-        height = self.video_data.height
-        width = self.video_data.width
-        heatmap = np.zeros([height, width], dtype=np.single)
-        heatmap_cue = np.full([height, width], 255, dtype=np.uint8)
+    def get_heat_map(self, start_frame, end_frame):
+        cues = [self.calc_binary(self.cap, frame_i)[1] for frame_i in range(start_frame, end_frame)]
+        cues_sum = np.sum(np.array(cues),axis=0) #sum
 
-        #breakpoint()
-        heatmap= heatmap + (COEF_FADE_IN * cue_raw/250)
-        heatmap= heatmap - COEF_FADE_OUT
-        heatmap= np.clip(heatmap, 0, None)
-        heatmapf = np.clip(heatmap, 0, HEATMAP_CEIL) # saturated heatmap, only for display    
-        heatmapf.itemset((0,0), HEATMAP_CEIL)
-        cv.normalize(heatmapf, heatmap_cue, 0, 255, cv.NORM_MINMAX, cv.CV_8UC1)
-        heatmap_render = cv.applyColorMap(heatmap_cue, cmapy.cmap('nipy_spectral'))
-        return Image.fromarray(heatmap_render).convert('RGB')
+        # normalize
+        min_value = np.min(cues_sum)
+        max_value = np.max(cues_sum)
+        normalized_array = (cues_sum - min_value) / (max_value - min_value) * 255
+        normalized_array = normalized_array.astype(np.uint8)
 
-    def calc_binary(self, cap):
+        colormap = cm.get_cmap('viridis')  # You can use 'jet', 'plasma', etc.
+        colored_array = colormap(normalized_array / 255.0)  # Normalize array to 0-1 for colormap
 
-        threshold_value = 40
+        # Matplotlib returns an RGBA image, convert to RGB
+        colored_array_rgb = (colored_array[:, :, :3] * 255).astype(np.uint8)
+
+        # Create the PIL image from the RGB array
+        image = Image.fromarray(colored_array_rgb, 'RGB')
+
+        return image
+
+    def calc_binary(self, cap, frame_i):
         height = self.video_data.height
         width = self.video_data.width
         mask = build_mask_from_coordinate(height,width, 
                         self.video_data.mask_coordinate)
-
+        ref_image = self.video_data.ref_precomp[frame_i-1]
         ret, current_col = cap.read()
         current= cv.cvtColor(current_col, cv.COLOR_BGR2GRAY) 
         
-        # updating the reference/background image
-        for y in range(height):
-            for x in range(width):
-                #self.video_data.ref_image.getpixel((x,y))
-                if current.item(y,x) > self.video_data.ref_image.getpixel((x,y)):
-                    self.video_data.ref_image.putpixel((x,y), current.item(y,x))
-
-        cue = cv.absdiff(current, np.array(self.video_data.ref_image))
+        cue = cv.absdiff(current, np.array(ref_image))
         cue = cv.bitwise_and(cue, mask)
         ret, cue = cv.threshold(cue, 0, 200, cv.THRESH_TRIANGLE)
         #ret, cue_bin= cv.threshold(cue,threshold_value,250,cv.THRESH_BINARY)
@@ -100,11 +118,12 @@ class VideoPlayer():
         self.tkinter_frame1.configure(image=frame_image)
         self.tkinter_frame1.update()
 
-        pil_bin_img, cue_bin = self.calc_binary(self.cap)
-
+        pil_bin_img, cue_bin = self.calc_binary(self.cap, frame_i)
+        # buffer cue_bin to video_data
         if self.mode == "heatmap":
-            pil_bin_img = self.get_heat_map(cue_bin)
+            pil_bin_img = self.get_heat_map(frame_i-20, frame_i)
 
+        self.current_processed_image = pil_bin_img
         bin_image = customtkinter.CTkImage(
             light_image=pil_bin_img,
             dark_image=pil_bin_img,
@@ -127,8 +146,8 @@ class VideoPlayer():
         start_frame = int(self.tkinter_slider.get())
         print("play clicked")
         for frame_i in range(start_frame, self.video_data.end_frame):
-            time.sleep(1/30)
-            print(f"showing frame {frame_i}")
+            #time.sleep(1/30)
+            #print(f"showing frame {frame_i}")
             self.show_frame(frame_i)
             self.current_frame +=1
             if self.playing == False:
@@ -158,7 +177,9 @@ class VideoData:
     ref_image: Image
     start_frame: int
     end_frame: int
+    ref_precomp: list
     mask_coordinate: list = None
+    
     
 
 
@@ -181,6 +202,9 @@ class OpenFileModel:
         pil_img = get_image_from_cap(cap)
         lastframe = int(frame_length)
 
+        frames = get_frames(cap, startframe, lastframe)
+        ref_precomp = precomp_ref(frames)
+
         video_data = VideoData(
             file_name=self.file_name,
             width=width,
@@ -190,6 +214,7 @@ class OpenFileModel:
             ref_image=pil_img.convert("L"),
             start_frame=startframe,
             end_frame=lastframe,
+            ref_precomp= ref_precomp
         )
         return video_data
 
