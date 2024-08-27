@@ -3,6 +3,7 @@ from customtkinter import filedialog
 from PIL import Image
 from view import OpenFileView, MaskingView
 from PIL import Image, ImageTk
+from tkinter import filedialog
 
 
 class MainWindowControler:
@@ -112,8 +113,15 @@ class MainWindowControler:
             self.view.window.button_frame2_switcher.configure(text="Binary")
         
     def button_frame2_snapshot_pressed(self):
-        print("btn snapshot pressed")
-        pass
+        file_path = filedialog.asksaveasfilename(defaultextension=".png",
+                                         filetypes=[("PNG files", "*.png"),
+                                                    ("JPEG files", "*.jpg"),
+                                                    ("All files", "*.*")])
+        if file_path:  # Check if a path was selected
+            self.model.video_player.current_processed_image.save(file_path)
+            print(f"Image saved to {file_path}")
+        else:
+            print("Save operation cancelled.")  
 
     def button_result_pressed(self):
         print("btn result pressed")
