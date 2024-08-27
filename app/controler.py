@@ -25,17 +25,23 @@ class MainWindowControler:
             self.open_video()
             self.view.run()
         else:
-            self.model.instantiate_video_player(self.view.window.video_frame1, self.view.window.video_frame2,self.view.window.slider_frame1)
+            self.model.instantiate_video_player(
+                self.view.window.video_frame1,
+                self.view.window.video_frame2,
+                self.view.window.slider_frame1,
+            )
 
             # set slider params
             self.view.window.slider_frame1._from_ = self.model.video_data.start_frame
             self.view.window.slider_frame1._to = self.model.video_data.end_frame
-            self.view.window.slider_frame1._number_of_steps = self.model.video_data.end_frame
+            self.view.window.slider_frame1._number_of_steps = (
+                self.model.video_data.end_frame
+            )
             self.view.window.slider_frame1.set(self.model.video_data.start_frame)
 
             self.model.video_player.show_frame(self.model.video_data.start_frame)
             self.view.window.deiconify()
-            
+
     def open_video(self):
         self.top_controler["open_file"].run(self)
         self.view.window.withdraw()
@@ -44,8 +50,10 @@ class MainWindowControler:
         ###############################################################################
         # Frame 1 widgets callbacks init (Annotated Video)
         ###############################################################################
-        #self.view.window.slider_frame1.configure(command=self.slider_frame1_event)
-        self.view.window.slider_frame1.bind("<ButtonRelease-1>", self.slider_frame1_event)
+        # self.view.window.slider_frame1.configure(command=self.slider_frame1_event)
+        self.view.window.slider_frame1.bind(
+            "<ButtonRelease-1>", self.slider_frame1_event
+        )
         self.view.window.button_frame1_add5s.configure(
             command=self.button_frame1_add5s_pressed
         )
@@ -101,8 +109,8 @@ class MainWindowControler:
         self.model.video_player.pause()
 
     def slider_frame2_event(self, value):
-
         print(int(value))
+
     def button_frame2_switcher_pressed(self):
         print("btn switch pressed")
         if self.model.video_player.mode == "binary":
@@ -111,17 +119,21 @@ class MainWindowControler:
         else:
             self.model.video_player.mode = "binary"
             self.view.window.button_frame2_switcher.configure(text="Binary")
-        
+
     def button_frame2_snapshot_pressed(self):
-        file_path = filedialog.asksaveasfilename(defaultextension=".png",
-                                         filetypes=[("PNG files", "*.png"),
-                                                    ("JPEG files", "*.jpg"),
-                                                    ("All files", "*.*")])
+        file_path = filedialog.asksaveasfilename(
+            defaultextension=".png",
+            filetypes=[
+                ("PNG files", "*.png"),
+                ("JPEG files", "*.jpg"),
+                ("All files", "*.*"),
+            ],
+        )
         if file_path:  # Check if a path was selected
             self.model.video_player.current_processed_image.save(file_path)
             print(f"Image saved to {file_path}")
         else:
-            print("Save operation cancelled.")  
+            print("Save operation cancelled.")
 
     def button_result_pressed(self):
         print("btn result pressed")
@@ -190,7 +202,9 @@ class MaskingControler:
     def button_masking_pressed(self):
         print("Masked")
         self.view.window.withdraw()
-        self.parent_controler.model.video_data.mask_coordinate = self.model.mask_coordinate
+        self.parent_controler.model.video_data.mask_coordinate = (
+            self.model.mask_coordinate
+        )
         self.parent_controler.run(starting=False)
 
     def get_coor(self, event):

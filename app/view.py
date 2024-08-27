@@ -137,7 +137,8 @@ class OpenFileView:
         self.window.grid_rowconfigure(0, weight=1)
 
         self.window.label = customtkinter.CTkLabel(
-            self.window, text="Welcome to Cell Counting and Motility Observation Tool ver 0.1"
+            self.window,
+            text="Welcome to Cell Counting and Motility Observation Tool ver 0.1",
         )
         self.window.label.grid(row=0, columnspan=3, padx=10, pady=10, sticky="ew")
         self.window.button_load_video = customtkinter.CTkButton(
