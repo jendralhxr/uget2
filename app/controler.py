@@ -3,7 +3,6 @@ from customtkinter import filedialog
 from PIL import Image
 from view import OpenFileView, MaskingView
 from PIL import Image, ImageTk
-from tkinter import filedialog
 
 
 class MainWindowControler:
@@ -29,6 +28,7 @@ class MainWindowControler:
                 self.view.window.video_frame1,
                 self.view.window.video_frame2,
                 self.view.window.slider_frame1,
+                self.view.window.label_slider_frame1,
             )
 
             # set slider params
@@ -73,7 +73,8 @@ class MainWindowControler:
         ###############################################################################
         # Frame 2 widgets  (Binary and Heatmap Video)
         ###############################################################################
-        self.view.window.slider_frame2.configure(command=self.slider_frame2_event)
+        self.view.window.slider_frame2.configure(command=self.slider_frame2_event, state='disabled')
+        self.view.window.option_menu_frame2_thresholding_method.configure(command=self.option_menu_frame2_thresholding_method_event)
         self.view.window.button_frame2_switcher.configure(
             command=self.button_frame2_switcher_pressed
         )
@@ -83,6 +84,7 @@ class MainWindowControler:
         self.view.window.button_result.configure(command=self.button_result_pressed)
 
     def slider_frame1_event(self, event):
+        
         value = self.view.window.slider_frame1.get()
         if self.model.video_player.playing:
             self.model.video_player.set_frame_to(int(value), set_slider=False)
@@ -110,6 +112,15 @@ class MainWindowControler:
 
     def slider_frame2_event(self, value):
         print(int(value))
+
+    def option_menu_frame2_thresholding_method_event(self, value):
+        if value == "Triangle":
+            print("value changed to Triangle")
+            self.view.window.slider_frame2.configure(state='disabled')
+        elif value == "Binary  ":
+            print("value changed to Binary")
+            self.view.window.slider_frame2.configure(state='normal')
+        print(value)
 
     def button_frame2_switcher_pressed(self):
         print("btn switch pressed")
@@ -200,7 +211,6 @@ class MaskingControler:
         self.delete_mask()
 
     def button_masking_pressed(self):
-        print("Masked")
         self.view.window.withdraw()
         self.parent_controler.model.video_data.mask_coordinate = (
             self.model.mask_coordinate
