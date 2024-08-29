@@ -111,16 +111,17 @@ class MainWindowControler:
         self.model.video_player.pause()
 
     def slider_frame2_event(self, value):
-        print(int(value))
+        self.model.video_player.binary_thresholding_param = int(value)
 
     def option_menu_frame2_thresholding_method_event(self, value):
         if value == "Triangle":
             print("value changed to Triangle")
             self.view.window.slider_frame2.configure(state='disabled')
+            self.model.video_player.thresholding_method = "triangle"
         elif value == "Binary  ":
             print("value changed to Binary")
             self.view.window.slider_frame2.configure(state='normal')
-        print(value)
+            self.model.video_player.thresholding_method = "binary"
 
     def button_frame2_switcher_pressed(self):
         print("btn switch pressed")

@@ -96,8 +96,9 @@ class MainWindowView:
             row=1, column=6, padx=5, pady=(10, 0), sticky="ews"
         )
         self.window.slider_frame2 = customtkinter.CTkSlider(
-            frame, from_=0, to=100, number_of_steps=100
+            frame, from_=0, to=50, number_of_steps=50
         )
+        self.window.slider_frame2.set(15)
         self.window.slider_frame2.grid(
             row=2, column=6, columnspan=5, padx=10, pady=(0, 10), sticky="ewn"
         )

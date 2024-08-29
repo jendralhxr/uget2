@@ -70,6 +70,8 @@ class VideoPlayer:
         self.cap = cv.VideoCapture(video_data.file_name)
         self.playing = True
         self.mode = "binary"  # or "heatmap"
+        self.thresholding_method = "triangle" # or "binary"
+        self.binary_thresholding_param = 15
         self.current_processed_image = None
 
     def get_heat_map(self, start_frame, end_frame):
@@ -110,8 +112,10 @@ class VideoPlayer:
 
         cue = cv.absdiff(current, np.array(ref_image))
         cue = cv.bitwise_and(cue, mask)
-        ret, cue = cv.threshold(cue, 0, 200, cv.THRESH_TRIANGLE)
-        # ret, cue_bin= cv.threshold(cue,threshold_value,250,cv.THRESH_BINARY)
+        if self.thresholding_method == "triangle":
+            ret, cue = cv.threshold(cue, 0, 200, cv.THRESH_TRIANGLE)
+        elif self.thresholding_method == "binary":
+            ret, cue= cv.threshold(cue,self.binary_thresholding_param,250,cv.THRESH_BINARY)
         return Image.fromarray(cue).convert("RGB"), cue
 
     def show_frame(self, frame_i, set_slider=True):
