@@ -1,18 +1,10 @@
 from itertools import chain
 import numpy as np
 import cv2 as cv
-import sys
-import cmapy
-import ffmpegcv
 from PIL import Image, ImageDraw
 from dataclasses import dataclass
 import customtkinter
-import time
-import copy
-from sys import getsizeof
 from matplotlib import cm
-
-import matplotlib.pyplot as plt
 
 COEF_FADE_IN = 1.00
 COEF_FADE_OUT = 0.90
@@ -57,9 +49,15 @@ def precomp_ref(frames):
         ref_image_precomputed.append(ref_image)
     return ref_image_precomputed
 
+
 class VideoPlayer:
     def __init__(
-        self, video_data, tkinter_frame1, tkinter_frame2, tkinter_slider,label_slider_frame1
+        self,
+        video_data,
+        tkinter_frame1,
+        tkinter_frame2,
+        tkinter_slider,
+        label_slider_frame1,
     ) -> None:
         self.video_data = video_data
         self.current_frame = 0
@@ -70,7 +68,7 @@ class VideoPlayer:
         self.cap = cv.VideoCapture(video_data.file_name)
         self.playing = True
         self.mode = "binary"  # or "heatmap"
-        self.thresholding_method = "triangle" # or "binary"
+        self.thresholding_method = "triangle"  # or "binary"
         self.binary_thresholding_param = 15
         self.current_processed_image = None
 
@@ -115,7 +113,9 @@ class VideoPlayer:
         if self.thresholding_method == "triangle":
             ret, cue = cv.threshold(cue, 0, 200, cv.THRESH_TRIANGLE)
         elif self.thresholding_method == "binary":
-            ret, cue= cv.threshold(cue,self.binary_thresholding_param,250,cv.THRESH_BINARY)
+            ret, cue = cv.threshold(
+                cue, self.binary_thresholding_param, 250, cv.THRESH_BINARY
+            )
         return Image.fromarray(cue).convert("RGB"), cue
 
     def show_frame(self, frame_i, set_slider=True):
@@ -137,7 +137,7 @@ class VideoPlayer:
         pil_bin_img, cue_bin = self.calc_binary(self.cap, frame_i)
         # buffer cue_bin to video_data
         if self.mode == "heatmap":
-            window_size = min(frame_i-1, 20)
+            window_size = min(frame_i - 1, 20)
             pil_bin_img = self.get_heat_map(frame_i - window_size, frame_i)
 
         self.current_processed_image = pil_bin_img
@@ -148,7 +148,7 @@ class VideoPlayer:
         )
         self.tkinter_frame2.configure(image=bin_image)
         self.tkinter_frame2.update()
-        self.tkinter_label_frame1.configure(text="Frame:"+str(frame_i)) 
+        self.tkinter_label_frame1.configure(text="Frame:" + str(frame_i))
 
     def set_frame_to(self, frame_i, set_slider=True):
         self.show_frame(frame_i, set_slider)
@@ -156,12 +156,11 @@ class VideoPlayer:
             self.current_frame = frame_i
         else:
             self.current_frame = int(self.tkinter_slider.get())
-        
+
     def play(self):
         self.playing = True
         self.tkinter_slider
         start_frame = int(self.tkinter_slider.get())
-        print("play clicked")
         for frame_i in range(start_frame, self.video_data.end_frame):
             # time.sleep(1/30)
             # print(f"showing frame {frame_i}")
@@ -240,9 +239,15 @@ class MainWindowModel:
     def set_video_data(self, video_data):
         self.video_data = video_data
 
-    def instantiate_video_player(self, tkinter_frame1, tkinter_frame2, tkinter_slider, label_slider_frame1):
+    def instantiate_video_player(
+        self, tkinter_frame1, tkinter_frame2, tkinter_slider, label_slider_frame1
+    ):
         self.video_player = VideoPlayer(
-            self.video_data, tkinter_frame1, tkinter_frame2, tkinter_slider, label_slider_frame1
+            self.video_data,
+            tkinter_frame1,
+            tkinter_frame2,
+            tkinter_slider,
+            label_slider_frame1,
         )
 
 
@@ -258,15 +263,12 @@ class MaskingModel:
     def pop_mask_coordinate(self):
         if len(self.mask_coordinate) != 0:
             self.mask_coordinate.pop()
-        print(self.mask_coordinate)
 
     def clear_mask_coordinate(self):
         self.mask_coordinate.clear()
-        print(self.mask_coordinate)
 
     def get_mask_coordinate(self):
         return list(chain(self.mask_coordinate))
-
 
 class ResultModel:
     pass

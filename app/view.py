@@ -1,5 +1,5 @@
 import customtkinter
-from customtkinter import filedialog, CTkOptionMenu
+from customtkinter import CTkOptionMenu
 from PIL import Image, ImageTk
 
 
@@ -32,7 +32,9 @@ class MainWindowView:
             row=0, columnspan=5, padx=10, pady=10, sticky="ew"
         )
 
-        self.window.label_slider_frame1 = customtkinter.CTkLabel(frame, text="Frame", anchor="w")
+        self.window.label_slider_frame1 = customtkinter.CTkLabel(
+            frame, text="Frame", anchor="w"
+        )
         self.window.label_slider_frame1.grid(
             row=1, column=0, columnspan=2, padx=5, pady=(10, 0), sticky="ews"
         )
@@ -109,9 +111,8 @@ class MainWindowView:
         self.window.option_menu_frame2_thresholding_method.configure(width=80)
 
         self.window.option_menu_frame2_thresholding_method.grid(
-            row=3, column=6, columnspan=2,padx=10, pady=10, sticky="ew"
+            row=3, column=6, columnspan=2, padx=10, pady=10, sticky="ew"
         )
-
 
         self.window.button_frame2_switcher = customtkinter.CTkButton(
             frame, width=80, text="Binary"

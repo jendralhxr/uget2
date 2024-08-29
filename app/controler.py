@@ -1,8 +1,4 @@
-import customtkinter
 from customtkinter import filedialog
-from PIL import Image
-from view import OpenFileView, MaskingView
-from PIL import Image, ImageTk
 
 
 class MainWindowControler:
@@ -73,8 +69,12 @@ class MainWindowControler:
         ###############################################################################
         # Frame 2 widgets  (Binary and Heatmap Video)
         ###############################################################################
-        self.view.window.slider_frame2.configure(command=self.slider_frame2_event, state='disabled')
-        self.view.window.option_menu_frame2_thresholding_method.configure(command=self.option_menu_frame2_thresholding_method_event)
+        self.view.window.slider_frame2.configure(
+            command=self.slider_frame2_event, state="disabled"
+        )
+        self.view.window.option_menu_frame2_thresholding_method.configure(
+            command=self.option_menu_frame2_thresholding_method_event
+        )
         self.view.window.button_frame2_switcher.configure(
             command=self.button_frame2_switcher_pressed
         )
@@ -84,7 +84,6 @@ class MainWindowControler:
         self.view.window.button_result.configure(command=self.button_result_pressed)
 
     def slider_frame1_event(self, event):
-        
         value = self.view.window.slider_frame1.get()
         if self.model.video_player.playing:
             self.model.video_player.set_frame_to(int(value), set_slider=False)
@@ -115,16 +114,13 @@ class MainWindowControler:
 
     def option_menu_frame2_thresholding_method_event(self, value):
         if value == "Triangle":
-            print("value changed to Triangle")
-            self.view.window.slider_frame2.configure(state='disabled')
+            self.view.window.slider_frame2.configure(state="disabled")
             self.model.video_player.thresholding_method = "triangle"
         elif value == "Binary  ":
-            print("value changed to Binary")
-            self.view.window.slider_frame2.configure(state='normal')
+            self.view.window.slider_frame2.configure(state="normal")
             self.model.video_player.thresholding_method = "binary"
 
     def button_frame2_switcher_pressed(self):
-        print("btn switch pressed")
         if self.model.video_player.mode == "binary":
             self.model.video_player.mode = "heatmap"
             self.view.window.button_frame2_switcher.configure(text="Heatmap")
@@ -143,9 +139,6 @@ class MainWindowControler:
         )
         if file_path:  # Check if a path was selected
             self.model.video_player.current_processed_image.save(file_path)
-            print(f"Image saved to {file_path}")
-        else:
-            print("Save operation cancelled.")
 
     def button_result_pressed(self):
         print("btn result pressed")
@@ -165,7 +158,6 @@ class OpenFileControler:
 
     def button_load_video_pressed(self):
         filename = filedialog.askopenfilename()
-        print(f"file name is {filename}")
         self.model.set_file_name(filename)
 
         # load video data to the main controler
@@ -222,8 +214,6 @@ class MaskingControler:
         mouse_xy = (event.x, event.y)
         self.model.add_mask_coordinate(mouse_xy)
         self.draw_mask()
-        print(mouse_xy)
-        print(self.model.mask_coordinate)
 
     def draw_mask(self):
         mask_coordinate = self.model.get_mask_coordinate()
