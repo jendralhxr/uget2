@@ -40,13 +40,13 @@ def get_frames(cap, start_frame, end_frame):
 def precomp_ref(frames):
     ref_image_precomputed = []
     ref = cv.cvtColor(frames[0], cv.COLOR_BGR2GRAY)
+    ref = np.array(ref)
     for f in frames[1:]:
         current = cv.cvtColor(f, cv.COLOR_BGR2GRAY)
-        ref_image_np = np.array(ref)
+        ref_image_np = ref.copy()
         current_np = np.array(current)
         np.maximum(ref_image_np, current_np, out=ref_image_np)
-        ref_image = Image.fromarray(ref_image_np)
-        ref_image_precomputed.append(ref_image)
+        ref_image_precomputed.append(ref_image_np)
     return ref_image_precomputed
 
 
@@ -77,7 +77,7 @@ class VideoPlayer:
             self.calc_binary(self.cap, frame_i)[1]
             for frame_i in range(start_frame, end_frame)
         ]
-        cues_sum = np.sum(np.array(cues), axis=0)  # sum
+        cues_sum = np.sum(cues, axis=0)  # sum
 
         # normalize
         min_value = np.min(cues_sum)
@@ -108,7 +108,7 @@ class VideoPlayer:
         ret, current_col = cap.read()
         current = cv.cvtColor(current_col, cv.COLOR_BGR2GRAY)
 
-        cue = cv.absdiff(current, np.array(ref_image))
+        cue = cv.absdiff(current, ref_image)
         cue = cv.bitwise_and(cue, mask)
         if self.thresholding_method == "triangle":
             ret, cue = cv.threshold(cue, 0, 200, cv.THRESH_TRIANGLE)
@@ -269,6 +269,11 @@ class MaskingModel:
 
     def get_mask_coordinate(self):
         return list(chain(self.mask_coordinate))
+
+
+class ResultSettingModel:
+    pass
+
 
 class ResultModel:
     pass
