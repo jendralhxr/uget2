@@ -98,17 +98,38 @@ class VideoPlayer:
 
         return image
 
+    def on_the_fly_ref(self, frame_i, window_size=5):
+        start_frame_i = max(0, frame_i - window_size)
+        ref = cv.cvtColor(self.video_data.frames[start_frame_i], cv.COLOR_BGR2GRAY)
+        ref = np.array(ref)
+        for f in self.video_data.frames[start_frame_i:frame_i]:
+            current = cv.cvtColor(f, cv.COLOR_BGR2GRAY)
+            ref_image_np = ref.copy()
+            current_np = np.array(current)
+            np.maximum(ref_image_np, current_np, out=ref_image_np)
+
+        return ref_image_np
+
     def calc_binary(self, cap, frame_i):
         height = self.video_data.height
         width = self.video_data.width
         mask = build_mask_from_coordinate(
             height, width, self.video_data.mask_coordinate
         )
-        ref_image = self.video_data.ref_precomp[frame_i - 1]
+
+        if self.video_data.ref_precomp:
+            ref_image = self.video_data.ref_precomp[frame_i - 1]
+
+        else:
+            ref_image = self.on_the_fly_ref(frame_i)
+
         ret, current_col = cap.read()
         current = cv.cvtColor(current_col, cv.COLOR_BGR2GRAY)
 
-        cue = cv.absdiff(current, ref_image)
+        try:
+            cue = cv.absdiff(current, ref_image)
+        except:
+            breakpoint()
         cue = cv.bitwise_and(cue, mask)
         if self.thresholding_method == "triangle":
             ret, cue = cv.threshold(cue, 0, 200, cv.THRESH_TRIANGLE)
@@ -192,8 +213,9 @@ class VideoData:
     ref_image: Image
     start_frame: int
     end_frame: int
-    ref_precomp: list
+    ref_precomp: list = None
     mask_coordinate: list = None
+    frames: list = None
 
 
 class OpenFileModel:
@@ -215,7 +237,9 @@ class OpenFileModel:
         lastframe = int(frame_length)
 
         frames = get_frames(cap, startframe, lastframe)
-        ref_precomp = precomp_ref(frames)
+
+        # DISABLE ref precomp TODO: CLEANING
+        ref_precomp = None #precomp_ref(frames)
 
         video_data = VideoData(
             file_name=self.file_name,
@@ -227,6 +251,7 @@ class OpenFileModel:
             start_frame=startframe,
             end_frame=lastframe,
             ref_precomp=ref_precomp,
+            frames = frames
         )
         return video_data
 
@@ -271,8 +296,10 @@ class MaskingModel:
         return list(chain(self.mask_coordinate))
 
 
-class ResultSettingModel:
-    pass
+class ResultProcessModel:
+
+    def __init__(self) -> None:
+        pass
 
 
 class ResultModel:
