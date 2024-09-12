@@ -142,7 +142,7 @@ class MainWindowControler:
 
     def button_result_pressed(self):
         print("btn result pressed")
-        pass
+        self.top_controler["result_process"].run(self)
 
 
 class OpenFileControler:
@@ -239,6 +239,31 @@ class MaskingControler:
         self.view.run(parent_controler.view.window)
         self.init_callbacks()
 
+
+class ResultProcessControler:
+    def __init__(self, view, model, config) -> None:
+        self.view = view
+        self.config = config
+        self.model = model
+    def init_callbacks(self):
+        self.view.window.button_process.configure(command=self.button_get_result_pressed)
+        start_frame = self.parent_controler.model.video_data.start_frame
+        end_frame = self.parent_controler.model.video_data.end_frame
+        self.view.window.entry_start.insert(0,string=start_frame)
+        self.view.window.entry_end.insert(0,string=end_frame)
+        pass
+
+    def button_get_result_pressed(self,):
+        start_frame = self.view.window.entry_start.get()
+        end_frame = self.view.window.entry_end.get()
+        breakpoint()
+
+        pass
+
+    def run(self, parent_controler):
+        self.parent_controler = parent_controler
+        self.view.run(parent_controler.view.window)
+        self.init_callbacks()
 
 class ResultControler:
     def __init__(self, view, model, config) -> None:

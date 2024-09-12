@@ -214,6 +214,38 @@ class MaskingView:
         self._build_gui(parent)
         self.window.deiconify()
 
+class ResultProcessView:
+    def __init__(self):
+        self.title = "Result process"
+    def _build_gui(self, parent):
+        self.window = customtkinter.CTkToplevel(parent)
+        self.window.title(self.title)
+        self.window.geometry("400x300")
+
+        frame = customtkinter.CTkFrame(self.window)
+        frame.place(relx=0.5, rely=0.5, anchor="c")
+        # Create label and entry for "start"
+        self.window.label_start = customtkinter.CTkLabel(frame, text="Start")
+        self.window.label_start.grid(row=0, column=0, padx=10, pady=(10, 0), sticky="w")
+
+        self.window.entry_start = customtkinter.CTkEntry(frame, width=100)
+        self.window.entry_start.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="ew")
+
+        # Create label and entry for "end"
+        self.window.label_end = customtkinter.CTkLabel(frame, text="End")
+        self.window.label_end.grid(row=0, column=1, padx=10, pady=(10, 0), sticky="w")
+
+        self.window.entry_end = customtkinter.CTkEntry(frame, width=100)
+        self.window.entry_end.grid(row=1, column=1, padx=10, pady=(0, 10), sticky="ew")
+
+        self.window.button_process = customtkinter.CTkButton(
+            frame, width=80, text="process")
+        self.window.button_process.grid(
+            row=2, column=5, padx=10, pady=10, sticky="ew")
+
+    def run(self, parent):
+        self._build_gui(parent)
+        self.window.deiconify()
 
 class ResultView:
     pass

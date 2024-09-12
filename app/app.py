@@ -4,9 +4,10 @@ from controler import (
     OpenFileControler,
     MaskingControler,
     ResultControler,
+    ResultProcessControler,
 )
-from view import MainWindowView, OpenFileView, MaskingView, ResultView
-from model import MainWindowModel, OpenFileModel, MaskingModel, ResultModel
+from view import MainWindowView, OpenFileView, MaskingView, ResultView, ResultProcessView
+from model import MainWindowModel, OpenFileModel, MaskingModel, ResultModel, ResultProcessModel
 
 config = Configuration()
 
@@ -25,6 +26,11 @@ masking_view = MaskingView()
 masking_model = MaskingModel()
 masking_controler = MaskingControler(masking_view, masking_model, config)
 
+result_process_view = ResultProcessView()
+result_process_model = ResultProcessModel()
+result_process_controler = ResultProcessControler(result_process_view, result_process_model, config)
+
+
 # result instantiation
 result_view = ResultView()
 result_model = ResultModel()
@@ -34,6 +40,7 @@ controlers = {
     "open_file": open_file_controler,
     "masking": masking_controler,
     "result": result_controler,
+    "result_process": result_process_controler
 }
 
 main_controler.bind_top_windows_controlers(controlers)
