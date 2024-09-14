@@ -5,6 +5,8 @@ from PIL import Image, ImageDraw
 from dataclasses import dataclass
 import customtkinter
 from matplotlib import cm
+from datetime import datetime
+import matplotlib.pyplot as plt
 
 COEF_FADE_IN = 1.00
 COEF_FADE_OUT = 0.90
@@ -71,6 +73,11 @@ class VideoPlayer:
         self.thresholding_method = "triangle"  # or "binary"
         self.binary_thresholding_param = 15
         self.current_processed_image = None
+        self.mask = build_mask_from_coordinate(
+            self.video_data.height,
+            self.video_data.width,
+            self.video_data.mask_coordinate,
+        )
 
     def get_heat_map(self, start_frame, end_frame):
         cues = [
@@ -110,34 +117,30 @@ class VideoPlayer:
 
         return ref_image_np
 
-    def calc_binary(self, cap, frame_i):
-        height = self.video_data.height
-        width = self.video_data.width
-        mask = build_mask_from_coordinate(
-            height, width, self.video_data.mask_coordinate
-        )
-
+    def calc_binary(self, cap, frame_i, return_img=True):
         if self.video_data.ref_precomp:
             ref_image = self.video_data.ref_precomp[frame_i - 1]
-
         else:
             ref_image = self.on_the_fly_ref(frame_i)
 
         ret, current_col = cap.read()
         current = cv.cvtColor(current_col, cv.COLOR_BGR2GRAY)
+        cue = cv.absdiff(current, ref_image)
 
-        try:
-            cue = cv.absdiff(current, ref_image)
-        except:
-            breakpoint()
-        cue = cv.bitwise_and(cue, mask)
+        cue = cv.bitwise_and(cue, self.mask)
         if self.thresholding_method == "triangle":
             ret, cue = cv.threshold(cue, 0, 200, cv.THRESH_TRIANGLE)
         elif self.thresholding_method == "binary":
             ret, cue = cv.threshold(
                 cue, self.binary_thresholding_param, 250, cv.THRESH_BINARY
             )
-        return Image.fromarray(cue).convert("RGB"), cue
+
+        if return_img:
+            # make it faster by skipping this if not needed
+            img = Image.fromarray(cue).convert("RGB")
+        else:
+            img = None
+        return img, cue
 
     def show_frame(self, frame_i, set_slider=True):
         if set_slider:
@@ -239,7 +242,7 @@ class OpenFileModel:
         frames = get_frames(cap, startframe, lastframe)
 
         # DISABLE ref precomp TODO: CLEANING
-        ref_precomp = None #precomp_ref(frames)
+        ref_precomp = None  # precomp_ref(frames)
 
         video_data = VideoData(
             file_name=self.file_name,
@@ -251,7 +254,7 @@ class OpenFileModel:
             start_frame=startframe,
             end_frame=lastframe,
             ref_precomp=ref_precomp,
-            frames = frames
+            frames=frames,
         )
         return video_data
 
@@ -297,9 +300,39 @@ class MaskingModel:
 
 
 class ResultProcessModel:
-
     def __init__(self) -> None:
-        pass
+        self.fps = 60
+
+    def calculate_count(self, video_player, start_frame, end_frame):
+        print("calculate model")
+        print(f"start {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        start_frame = int(start_frame)
+        end_frame = int(end_frame)
+        count_per_second = []
+        tempcount = np.zeros(self.fps, dtype=np.uint)
+
+        for i in range(end_frame - start_frame - 1):
+            frame_i = start_frame + i
+            video_player.cap.set(cv.CAP_PROP_POS_FRAMES, float(frame_i))
+            _, cue = video_player.calc_binary(
+                video_player.cap, frame_i, return_img=False
+            )
+            contours, hierarchy = cv.findContours(
+                cue, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE
+            )
+            tempcount[frame_i % self.fps] = len(contours)
+
+            if frame_i % self.fps == 0:
+                count_per_second.append(np.average(tempcount))
+
+        print(f"end {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+
+        plt.plot(count_per_second)
+        plt.xlabel("time")
+        plt.ylabel("count")
+        plt.show()
+
+        return count_per_second
 
 
 class ResultModel:

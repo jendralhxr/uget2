@@ -1,4 +1,5 @@
 from customtkinter import filedialog
+import csv
 
 
 class MainWindowControler:
@@ -245,25 +246,43 @@ class ResultProcessControler:
         self.view = view
         self.config = config
         self.model = model
+
     def init_callbacks(self):
-        self.view.window.button_process.configure(command=self.button_get_result_pressed)
+        self.view.window.button_process.configure(
+            command=self.button_get_result_pressed
+        )
         start_frame = self.parent_controler.model.video_data.start_frame
         end_frame = self.parent_controler.model.video_data.end_frame
-        self.view.window.entry_start.insert(0,string=start_frame)
-        self.view.window.entry_end.insert(0,string=end_frame)
-        pass
+        self.view.window.entry_start.insert(0, string=start_frame)
+        self.view.window.entry_end.insert(0, string=end_frame)
 
-    def button_get_result_pressed(self,):
+    def button_get_result_pressed(
+        self,
+    ):
         start_frame = self.view.window.entry_start.get()
         end_frame = self.view.window.entry_end.get()
-        breakpoint()
 
-        pass
+        count_per_second = self.model.calculate_count(
+            self.parent_controler.model.video_player, start_frame, end_frame
+        )
+
+        file_path = filedialog.asksaveasfilename(
+            defaultextension=".csv",
+            filetypes=[
+                ("csv files", "*.csv"),
+            ],
+        )
+        if file_path:
+            with open(file_path, "w", newline="") as file:
+                writer = csv.writer(file)
+                for item in count_per_second:
+                    writer.writerow([item])
 
     def run(self, parent_controler):
         self.parent_controler = parent_controler
         self.view.run(parent_controler.view.window)
         self.init_callbacks()
+
 
 class ResultControler:
     def __init__(self, view, model, config) -> None:
