@@ -172,7 +172,7 @@ class VideoPlayer:
         )
         self.tkinter_frame2.configure(image=bin_image)
         self.tkinter_frame2.update()
-        self.tkinter_label_frame1.configure(text="Frame:" + str(frame_i))
+        self.tkinter_label_frame1.configure(text="Frame: " + str(frame_i))
 
     def set_frame_to(self, frame_i, set_slider=True):
         self.show_frame(frame_i, set_slider)
