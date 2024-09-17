@@ -92,7 +92,7 @@ class VideoPlayer:
         normalized_array = (cues_sum - min_value) / (max_value - min_value) * 255
         normalized_array = normalized_array.astype(np.uint8)
 
-        colormap = cm.get_cmap("viridis")  # You can use 'jet', 'plasma', etc.
+        colormap = cm.get_cmap("nipy_spectral")  # You can use 'jet', 'plasma', etc.
         colored_array = colormap(
             normalized_array / 255.0
         )  # Normalize array to 0-1 for colormap
