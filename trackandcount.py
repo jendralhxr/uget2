@@ -9,9 +9,8 @@ from packaging import version
 
 COEF_FADE_IN  = 1.00
 COEF_FADE_OUT = 0.90
-HEATMAP_CEIL= COEF_FADE_IN * 60 # persistence presence is noted within 1 second
+HEATMAP_CEIL= COEF_FADE_IN * 60 # persistence presence is acknowledges if blob persists for at least 1 second
 threshold_value = 13 # good place to start
-# buat LOKA: any way to set these values more gracefully? like a slider?
 
 framenum = 0
 window_name = "uget2"
@@ -68,9 +67,9 @@ while (key != ord('s')):
         cv.setMouseCallback(window_name, lambda *args : None)
         cv.destroyAllWindows()    
         key=ord('-') # unlikely to press this 
-        vid_cue = cv.VideoWriter(sys.argv[4],cv.VideoWriter_fourcc('M','P','4','V'), 60, (width,height))
-        vid_heat = cv.VideoWriter(sys.argv[5],cv.VideoWriter_fourcc('M','P','4','V'), 60, (width,height))
-        vid_thre = cv.VideoWriter(sys.argv[6],cv.VideoWriter_fourcc('M','P','4','V'), 60, (width,height))
+        vid_cue = ffmpegcv.VideoWriter(sys.argv[4], 'h264')
+        vid_heat = ffmpegcv.VideoWriter(sys.argv[5],'h264')
+        vid_thre = ffmpegcv.VideoWriter(sys.argv[6],'h264')
         break
 
 
@@ -80,15 +79,8 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
     current = cv.cvtColor(current_col, cv.COLOR_BGR2GRAY)
     cue = cv.bitwise_and(current, mask)
 
-    # keep the ref (reference background) the brightest
-    # also apply the mask for the capilary pipe
-    for j in range(height):
-        for i in range(width):
-            if current.item(j,i) > ref.item(j,i):
-                if version.parse(np.__version__) < version.parse("2.0"):
-                    ref.itemset((j,i), current.item(j,i)) # old numpy
-                else:
-                    ref[j][i]= ref.item(j,i) # new numpy
+    # keep the ref (reference background) the brightest, apply the mask
+    ref = np.maximum(ref, current)
     ref = cv.bitwise_and(ref, mask)
     
     # uget2 detection: background substraction and thresholding
@@ -100,7 +92,7 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
     #cue_gauss = cv.adaptiveThreshold(cue,250,cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY,11,2)
     
     # uget2 counting with countours
-    contours, hierarchy = cv.findContours(cue_raw, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE)
+    contours, hierarchy = cv.findContours(cue_raw, cv.RETR_LIST, cv.CHAIN_APPROX_NONE)
     #contours, hierarchy = cv.findContours(cue, cv.RETR_LIST, cv.CHAIN_APPROX_NONE)
     
     render = current_col
@@ -109,8 +101,7 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
         cv.fillPoly(render, pts=c, color=(0,0,180)) # pumpkin orange
         cv.drawContours(render, c, -1, (0,0,180), thickness=2)
 
-    
-    # averaging the count over a second
+    # moving-averaging the count over a second to smooth out the jitters
     tempcount[framenum%60]= len(contours)
         
     #heatmap
@@ -118,7 +109,12 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
     heatmap= heatmap - COEF_FADE_OUT
     heatmap= np.clip(heatmap, 0, None)
     heatmapf = np.clip(heatmap, 0, HEATMAP_CEIL) # saturated heatmap, only for display    
-    #heatmapf.itemset((0,0), HEATMAP_CEIL)
+    
+    # reference value so the normalization stays 'based'
+    if version.parse(np.__version__) < version.parse("2.0"):
+        heatmapf.itemset((0,0), HEATMAP_CEIL)  # old numpy
+    else:
+        heatmapf[0][0]= 0.0 # new numpy
     cv.normalize(heatmapf, heatmap_cue, 0, 255, cv.NORM_MINMAX, cv.CV_8UC1)
     heatmap_render = cv.applyColorMap(heatmap_cue, cmapy.cmap('nipy_spectral'))
     
@@ -139,16 +135,6 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
     hmy = int(hmoments["m01"] / hmass)
     cv.circle(heatmap_render, (cmx,cmy), 4, (240,0,0), -1)
     
-    # cv.imshow("treshold", cue_raw)
-    # cv.imshow("deteksi", render)
-    # cv.imshow("heatmap", heatmap_render)
-    # key = cv.waitKey(1) & 0xff
-    
-    vid_cue.write(render)
-    vid_heat.write(heatmap_render)
-    thre = cv.cvtColor(cue_raw, cv.COLOR_GRAY2BGR)
-    vid_thre.write(thre)
-    
     if (framenum%60==0):
         print(f'{framenum/60:.3f},{len(contours)},{np.min(heatmap)},{np.max(heatmap)},{cmx},{cmy},{hmx},{hmy},{int(framenum/60)},{np.average(tempcount)}')
         tempcount = np.zeros(60, dtype=np.uint)
@@ -156,7 +142,18 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
         print(f'{framenum/60:.3f},{len(contours)},{np.min(heatmap)},{np.max(heatmap)},{cmx},{cmy},{hmx},{hmy}')
     
     framenum= framenum+1
-    #print(framenum)
+    
+    cv.imshow("treshold", cue_raw)
+    cv.imshow("deteksi", render)
+    cv.imshow("heatmap", heatmap_render)
+    key = cv.waitKey(1) & 0xff
+    
+    vid_cue.write(render)
+    vid_heat.write(heatmap_render)
+    thre = cv.cvtColor(cue_raw, cv.COLOR_GRAY2BGR)
+    vid_thre.write(thre)
+    
+    print(framenum)
     if key==27:
         quit()
     elif key==ord('s'):
@@ -173,8 +170,9 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
     elif key==ord('r'): # reset video from the beginning
         vid_cue.release()
         vid_heat.release()
-        vid_cue = cv.VideoWriter(sys.argv[4],cv.VideoWriter_fourcc('M','P','4','V'), 60, (width,height))
-        vid_heat = cv.VideoWriter(sys.argv[5],cv.VideoWriter_fourcc('M','P','4','V'), 60, (width,height))
+        vid_cue  = ffmpegcv.VideoWriter(sys.argv[4], 'h264', 60, (width,height))
+        vid_heat = ffmpegcv.VideoWriter(sys.argv[5], 'h264', 60, (width,height))
+        vid_thre = ffmpegcv.VideoWriter(sys.argv[6], 'h264', 60, (width,height))
         framenum= 0
         cap.set(cv.CAP_PROP_POS_FRAMES, float(0.0))
         
