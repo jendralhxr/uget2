@@ -5,6 +5,7 @@ import cv2 as cv
 import sys
 import cmapy
 import ffmpegcv
+from packaging import version
 
 COEF_FADE_IN  = 1.00
 COEF_FADE_OUT = 0.90
@@ -84,7 +85,10 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
     for j in range(height):
         for i in range(width):
             if current.item(j,i) > ref.item(j,i):
-                ref.itemset((j,i), current.item(j,i))
+                if version.parse(np.__version__) < version.parse("2.0"):
+                    ref.itemset((j,i), current.item(j,i)) # old numpy
+                else:
+                    ref[j][i]= ref.item(j,i) # new numpy
     ref = cv.bitwise_and(ref, mask)
     
     # uget2 detection: background substraction and thresholding
@@ -114,7 +118,7 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
     heatmap= heatmap - COEF_FADE_OUT
     heatmap= np.clip(heatmap, 0, None)
     heatmapf = np.clip(heatmap, 0, HEATMAP_CEIL) # saturated heatmap, only for display    
-    heatmapf.itemset((0,0), HEATMAP_CEIL)
+    #heatmapf.itemset((0,0), HEATMAP_CEIL)
     cv.normalize(heatmapf, heatmap_cue, 0, 255, cv.NORM_MINMAX, cv.CV_8UC1)
     heatmap_render = cv.applyColorMap(heatmap_cue, cmapy.cmap('nipy_spectral'))
     
@@ -135,10 +139,10 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
     hmy = int(hmoments["m01"] / hmass)
     cv.circle(heatmap_render, (cmx,cmy), 4, (240,0,0), -1)
     
-    cv.imshow("treshold", cue_raw)
-    cv.imshow("deteksi", render)
-    cv.imshow("heatmap", heatmap_render)
-    key = cv.waitKey(1) & 0xff
+    # cv.imshow("treshold", cue_raw)
+    # cv.imshow("deteksi", render)
+    # cv.imshow("heatmap", heatmap_render)
+    # key = cv.waitKey(1) & 0xff
     
     vid_cue.write(render)
     vid_heat.write(heatmap_render)
