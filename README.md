@@ -6,9 +6,10 @@ kamerad bersama menghitung  uget-uget
 usage: 
 ```
 python run_cellcv.py <file_name> <start_frame> <end_frame> <show_video> <save_result>
+python -u trackandcount.py <inputvideo> <start_frame> <end_frame> <cue.mp4> <heat.mp4> <threshold.mp4> [ | tee output.log ] 
 ```
-
-example:
-```
-python run_cellcv.py dataset/uget2.MOV 1 1000 true true
-```
+dependencies: (for the command line version)
+- numpy
+- opencv
+- cmapy
+- ffmpegcv (and ffmpeg binary installed separately)
