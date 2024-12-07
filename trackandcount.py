@@ -125,7 +125,7 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
         mass=1
     cmx = int(cmoments["m10"] / mass)
     cmy = int(cmoments["m01"] / mass)
-    cv.circle(render, (cmx,cmy), 4, (240,0,0), -1)
+    #cv.circle(render, (cmx,cmy), 4, (240,0,0), -1)
     # cumulative heatmap
     hmoments= cv.moments(heatmap)
     hmass= hmoments["m00"]
@@ -133,7 +133,7 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
         hmass=1
     hmx = int(hmoments["m10"] / hmass)
     hmy = int(hmoments["m01"] / hmass)
-    cv.circle(heatmap_render, (cmx,cmy), 4, (240,0,0), -1)
+    cv.circle(heatmap_render, (cmx,cmy), 4, (0,240,0), -1)
     
     if (framenum%60==0):
         print(f'{framenum/60:.3f},{len(contours)},{np.min(heatmap)},{np.max(heatmap)},{cmx},{cmy},{hmx},{hmy},{int(framenum/60)},{np.average(tempcount)}')
@@ -153,7 +153,7 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
     thre = cv.cvtColor(cue_raw, cv.COLOR_GRAY2BGR)
     vid_thre.write(thre)
     
-    print(framenum)
+    # print(framenum)
     if key==27:
         quit()
     elif key==ord('s'):
