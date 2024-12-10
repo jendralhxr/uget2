@@ -172,7 +172,7 @@ class VideoPlayer:
         )
         self.tkinter_frame2.configure(image=bin_image)
         self.tkinter_frame2.update()
-        self.tkinter_label_frame1.configure(text="Frame: " + str(frame_i))
+        self.tkinter_label_frame1.configure(text=f"Frame: {frame_i} ({frame_i/self.video_data.fps:.3f} s)")
 
     def set_frame_to(self, frame_i, set_slider=True):
         self.show_frame(frame_i, set_slider)
@@ -243,7 +243,6 @@ class OpenFileModel:
 
         # DISABLE ref precomp TODO: CLEANING
         ref_precomp = None  # precomp_ref(frames)
-
         video_data = VideoData(
             file_name=self.file_name,
             width=width,
