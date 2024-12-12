@@ -17,14 +17,14 @@ window_name = "uget2"
 cv.namedWindow(window_name)
 
 cap = cv.VideoCapture(sys.argv[1])
-width = int(cap.get(cv.CAP_PROP_FRAME_WIDTH));
-height = int(cap.get(cv.CAP_PROP_FRAME_HEIGHT));
-fps = cap.get(cv.CAP_PROP_FPS);
+width = int(cap.get(cv.CAP_PROP_FRAME_WIDTH))
+height = int(cap.get(cv.CAP_PROP_FRAME_HEIGHT))
+fps = cap.get(cv.CAP_PROP_FPS)
 frame_length = int(cap.get(cv.CAP_PROP_FRAME_COUNT))
 print("input video is: {}x{} @{} {}".format(width, height, fps, frame_length))
 startframe = int(sys.argv[2])
 cap.set(cv.CAP_PROP_POS_FRAMES, float(startframe))
-framenum = startframe;
+framenum = startframe
 lastframe = int(sys.argv[3])
 
 heatmap = np.zeros([height, width], dtype=np.single)
@@ -32,7 +32,7 @@ heatmap_cue = np.full([height, width], 255, dtype=np.uint8)
 tempcount = np.zeros(60, dtype=np.uint)
 mask_col = np.full([height, width, 3], (255,255,255), dtype=np.uint8)
 mask = np.full([height, width], 255, dtype=np.uint8)
-key=ord('p');
+key=ord('p')
 
 #------ setting the capilary mask
 color= (0,0,0)
@@ -85,7 +85,7 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
     
     # uget2 detection: background substraction and thresholding
     cue = cv.absdiff(current, ref)
-    ret, cue_raw = cv.threshold(cue, 0, 250, cv.THRESH_TRIANGLE);
+    ret, cue_raw = cv.threshold(cue, 0, 250, cv.THRESH_TRIANGLE)
     #ret, cue_raw= cv.threshold(cue,threshold_value,250,cv.THRESH_BINARY)
     cue_raw = cv.bitwise_and(cue_raw, mask)
     #cue_mean = cv.adaptiveThreshold(cue,250,cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY,11,2)
