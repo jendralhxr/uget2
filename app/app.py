@@ -5,7 +5,7 @@ from controler import (
     MaskingControler,
     ResultControler,
     ResultProcessControler,
-    ResultControler
+    ResultControler,
 )
 from view import (
     MainWindowView,
@@ -13,7 +13,7 @@ from view import (
     MaskingView,
     ResultView,
     ResultProcessView,
-    ResultView
+    ResultView,
 )
 from model import (
     MainWindowModel,
@@ -21,7 +21,7 @@ from model import (
     MaskingModel,
     ResultModel,
     ResultProcessModel,
-    ResultModel
+    ResultModel,
 )
 
 config = Configuration()

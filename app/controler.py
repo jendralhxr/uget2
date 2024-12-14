@@ -94,7 +94,7 @@ class MainWindowControler:
     def button_frame1_min5s_pressed(self):
         current_frame = self.model.video_player.current_frame
         fps = self.model.video_player.video_data.fps
-        self.model.video_player.set_frame_to(current_frame - int(5*fps))
+        self.model.video_player.set_frame_to(current_frame - int(5 * fps))
         self.model.video_player.pause()
 
     def button_frame1_play_pressed(self):
@@ -109,7 +109,7 @@ class MainWindowControler:
     def button_frame1_add5s_pressed(self):
         current_frame = self.model.video_player.current_frame
         fps = self.model.video_player.video_data.fps
-        self.model.video_player.set_frame_to(current_frame + int(5*fps))
+        self.model.video_player.set_frame_to(current_frame + int(5 * fps))
         self.model.video_player.pause()
 
     def slider_frame2_event(self, value):
@@ -254,7 +254,11 @@ class ResultProcessControler:
         self.view.window.button_process.configure(
             command=self.button_get_result_pressed
         )
-        end_time = round(self.parent_controler.model.video_data.end_frame / self.parent_controler.model.video_data.fps, 3)
+        end_time = round(
+            self.parent_controler.model.video_data.end_frame
+            / self.parent_controler.model.video_data.fps,
+            3,
+        )
         self.view.window.entry_start.insert(0, string=0)
         self.view.window.entry_end.insert(0, string=end_time)
 
@@ -269,8 +273,9 @@ class ResultProcessControler:
         )
 
         self.view.window.withdraw()
-        self.parent_controler.top_controler["result"].run(self, count_per_second, tk_image_count_plot)
-
+        self.parent_controler.top_controler["result"].run(
+            self, count_per_second, tk_image_count_plot
+        )
 
     def run(self, parent_controler):
         self.parent_controler = parent_controler
@@ -285,13 +290,11 @@ class ResultControler:
         self.model = model
         self.count_per_second = None
         self.tmp_count_plot_path = None
+
     def init_callbacks(self):
-        self.view.window.button_save.configure(
-            command=self.button_save_pressed
-        )
+        self.view.window.button_save.configure(command=self.button_save_pressed)
 
     def button_save_pressed(self):
-
         file_path = filedialog.asksaveasfilename(
             defaultextension=".csv",
             filetypes=[
@@ -311,4 +314,3 @@ class ResultControler:
         self.view.run(parent_controler.view.window)
         self.view.set_image(tk_image_count_plot)
         self.init_callbacks()
-

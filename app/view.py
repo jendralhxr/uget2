@@ -94,9 +94,7 @@ class MainWindowView:
         self.window.label_slider_frame2 = customtkinter.CTkLabel(
             frame, text="Threshold (Binary):", anchor="w"
         )
-        self.window.label_slider_frame2.grid(
-            row=1, column=6, sticky="w"
-        )
+        self.window.label_slider_frame2.grid(row=1, column=6, sticky="w")
         self.window.slider_frame2 = customtkinter.CTkSlider(
             frame, from_=0, to=50, number_of_steps=50
         )
@@ -108,9 +106,7 @@ class MainWindowView:
         self.window.label_thresholding_method = customtkinter.CTkLabel(
             frame, text="Method:", anchor="w"
         )
-        self.window.label_thresholding_method.grid(
-            row=3, column=6, sticky="w"
-        )
+        self.window.label_thresholding_method.grid(row=3, column=6, sticky="w")
         self.window.option_menu_frame2_thresholding_method = CTkOptionMenu(
             frame, values=["Triangle", "Binary  "], width=100, height=30, anchor="w"
         )
@@ -123,9 +119,7 @@ class MainWindowView:
         self.window.label_display_method = customtkinter.CTkLabel(
             frame, text="Display:", anchor="w"
         )
-        self.window.label_display_method.grid(
-            row=3, column=8, sticky="w"
-        )
+        self.window.label_display_method.grid(row=3, column=8, sticky="w")
         self.window.button_frame2_switcher = customtkinter.CTkButton(
             frame, width=80, text="Binary"
         )
@@ -263,6 +257,7 @@ class ResultProcessView:
         self._build_gui(parent)
         self.window.deiconify()
 
+
 class ResultView:
     def __init__(self):
         self.title = "Result View"
@@ -276,15 +271,17 @@ class ResultView:
         frame.place(relx=0.5, rely=0.5, anchor="c")
 
         self.window.image_frame = customtkinter.CTkLabel(frame, text="")
-        self.window.image_frame.grid(row=0, column=0, columnspan=10, padx=10, pady=10, sticky="ew")
+        self.window.image_frame.grid(
+            row=0, column=0, columnspan=10, padx=10, pady=10, sticky="ew"
+        )
 
         self.window.button_save = customtkinter.CTkButton(frame, width=80, text="Save")
         self.window.button_save.grid(row=5, column=0, padx=10, pady=10, sticky="ew")
 
     def set_image(self, img):
-        #img = ImageTk.PhotoImage(img_path)
+        # img = ImageTk.PhotoImage(img_path)
 
-        #breakpoint()
+        # breakpoint()
         self.window.image_frame.configure(image=img)
         self.window.image_frame.image = img
 

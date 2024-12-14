@@ -178,7 +178,9 @@ class VideoPlayer:
         )
         self.tkinter_frame2.configure(image=bin_image)
         self.tkinter_frame2.update()
-        self.tkinter_label_frame1.configure(text=f"Frame: {frame_i} ({frame_i/self.video_data.fps:.3f} s)")
+        self.tkinter_label_frame1.configure(
+            text=f"Frame: {frame_i} ({frame_i/self.video_data.fps:.3f} s)"
+        )
 
     def set_frame_to(self, frame_i, set_slider=True):
         self.show_frame(frame_i, set_slider)
@@ -306,7 +308,6 @@ class MaskingModel:
 
 class ResultProcessModel:
     def calculate_count(self, video_player, start_time, end_time):
-
         fps = int(video_player.video_data.fps)
         print("calculate model")
         print(f"start {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
@@ -347,8 +348,10 @@ class ResultProcessModel:
         temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
         plt.savefig(temp_file.name)
         plt_image = Image.open(temp_file.name)
-        tk_image_count_plot = customtkinter.CTkImage(light_image=plt_image, dark_image=plt_image, size=(int(640), int(480)))
-        
+        tk_image_count_plot = customtkinter.CTkImage(
+            light_image=plt_image, dark_image=plt_image, size=(int(640), int(480))
+        )
+
         temp_file.close()
 
         return count_per_second, tk_image_count_plot
