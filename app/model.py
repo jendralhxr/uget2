@@ -179,7 +179,7 @@ class VideoPlayer:
         self.tkinter_frame2.configure(image=bin_image)
         self.tkinter_frame2.update()
         self.tkinter_label_frame1.configure(
-            text=f"Frame: {frame_i} ({frame_i/self.video_data.fps:.3f} s)"
+            text=f"Time: {frame_i/self.video_data.fps:.3f} s (frame {frame_i})"
         )
 
     def set_frame_to(self, frame_i, set_slider=True):
