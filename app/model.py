@@ -161,6 +161,11 @@ class VideoPlayer:
         pil_bin_img, cue_bin = self.calc_binary(self.cap, frame_i)
         # buffer cue_bin to video_data
         if self.mode == "heatmap":
+            if frame_i == 1:
+                # heatmap must be calculated from frame 2 at least
+                frame_i = 2
+                self.current_frame = 2
+
             window_size = min(frame_i - 1, 20)
             pil_bin_img = self.get_heat_map(frame_i - window_size, frame_i)
 
