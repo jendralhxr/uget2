@@ -239,7 +239,7 @@ class ResultProcessView:
         frame = customtkinter.CTkFrame(self.window)
         frame.place(relx=0.5, rely=0.5, anchor="c")
         # Create label and entry for "start"
-        self.window.label_start = customtkinter.CTkLabel(frame, text="Start")
+        self.window.label_start = customtkinter.CTkLabel(frame, text="Start (second)")
         self.window.label_start.grid(row=0, column=0, padx=10, pady=(10, 0), sticky="w")
 
         self.window.entry_start = customtkinter.CTkEntry(frame, width=100)
@@ -248,7 +248,7 @@ class ResultProcessView:
         )
 
         # Create label and entry for "end"
-        self.window.label_end = customtkinter.CTkLabel(frame, text="End")
+        self.window.label_end = customtkinter.CTkLabel(frame, text="End (second)")
         self.window.label_end.grid(row=0, column=1, padx=10, pady=(10, 0), sticky="w")
 
         self.window.entry_end = customtkinter.CTkEntry(frame, width=100)

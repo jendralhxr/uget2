@@ -253,19 +253,18 @@ class ResultProcessControler:
         self.view.window.button_process.configure(
             command=self.button_get_result_pressed
         )
-        start_frame = self.parent_controler.model.video_data.start_frame
-        end_frame = self.parent_controler.model.video_data.end_frame
-        self.view.window.entry_start.insert(0, string=start_frame)
-        self.view.window.entry_end.insert(0, string=end_frame)
+        end_time = round(self.parent_controler.model.video_data.end_frame / self.parent_controler.model.video_data.fps, 3)
+        self.view.window.entry_start.insert(0, string=0)
+        self.view.window.entry_end.insert(0, string=end_time)
 
     def button_get_result_pressed(
         self,
     ):
-        start_frame = self.view.window.entry_start.get()
-        end_frame = self.view.window.entry_end.get()
+        start_time = self.view.window.entry_start.get()
+        end_time = self.view.window.entry_end.get()
 
         count_per_second = self.model.calculate_count(
-            self.parent_controler.model.video_player, start_frame, end_frame
+            self.parent_controler.model.video_player, start_time, end_time
         )
 
         file_path = filedialog.asksaveasfilename(

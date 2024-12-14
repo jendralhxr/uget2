@@ -304,18 +304,19 @@ class MaskingModel:
 
 
 class ResultProcessModel:
-    def __init__(self) -> None:
-        self.fps = 60
+    def calculate_count(self, video_player, start_time, end_time):
 
-    def calculate_count(self, video_player, start_frame, end_frame):
+        fps = int(video_player.video_data.fps)
         print("calculate model")
         print(f"start {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        start_frame = int(start_frame)
-        end_frame = int(end_frame)
-        count_per_second = []
-        tempcount = np.zeros(self.fps, dtype=np.uint)
 
-        for i in range(end_frame - start_frame - 1):
+        start_frame = int(float(start_time) * fps)
+        end_frame = int(float(end_time) * fps)
+
+        count_per_second = []
+        tempcount = np.zeros(fps, dtype=np.uint)
+
+        for i in range(1, end_frame - start_frame - 1):
             frame_i = start_frame + i
             video_player.cap.set(cv.CAP_PROP_POS_FRAMES, float(frame_i))
             _, cue = video_player.calc_binary(
@@ -324,9 +325,9 @@ class ResultProcessModel:
             contours, hierarchy = cv.findContours(
                 cue, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE
             )
-            tempcount[frame_i % self.fps] = len(contours)
+            tempcount[frame_i % fps] = len(contours)
 
-            if frame_i % self.fps == 0:
+            if frame_i % fps == 0:
                 count_per_second.append(np.average(tempcount))
 
         print(f"end {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
