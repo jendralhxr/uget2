@@ -333,8 +333,16 @@ class ResultProcessModel:
         print(f"end {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
         plt.plot(count_per_second)
-        plt.xlabel("time")
+        plt.xlabel("time (second)")
         plt.ylabel("count")
+
+        if len(count_per_second) > 15 and len(count_per_second) < 20:
+            plt.xticks(np.arange(0, len(count_per_second) + 1, 5))
+        elif len(count_per_second) > 30:
+            plt.xticks(np.arange(0, len(count_per_second) + 1, 15))
+        else:
+            plt.xticks(np.arange(0, len(count_per_second) + 1, 1))
+
         plt.show()
 
         return count_per_second
