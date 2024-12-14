@@ -264,21 +264,13 @@ class ResultProcessControler:
         start_time = self.view.window.entry_start.get()
         end_time = self.view.window.entry_end.get()
 
-        count_per_second = self.model.calculate_count(
+        count_per_second, tk_image_count_plot = self.model.calculate_count(
             self.parent_controler.model.video_player, start_time, end_time
         )
 
-        file_path = filedialog.asksaveasfilename(
-            defaultextension=".csv",
-            filetypes=[
-                ("csv files", "*.csv"),
-            ],
-        )
-        if file_path:
-            with open(file_path, "w", newline="") as file:
-                writer = csv.writer(file)
-                for item in count_per_second:
-                    writer.writerow([item])
+        self.view.window.withdraw()
+        self.parent_controler.top_controler["result"].run(self, count_per_second, tk_image_count_plot)
+
 
     def run(self, parent_controler):
         self.parent_controler = parent_controler
@@ -291,3 +283,32 @@ class ResultControler:
         self.view = view
         self.config = config
         self.model = model
+        self.count_per_second = None
+        self.tmp_count_plot_path = None
+    def init_callbacks(self):
+        self.view.window.button_save.configure(
+            command=self.button_save_pressed
+        )
+
+    def button_save_pressed(self):
+
+        file_path = filedialog.asksaveasfilename(
+            defaultextension=".csv",
+            filetypes=[
+                ("csv files", "*.csv"),
+            ],
+        )
+        if file_path:
+            with open(file_path, "w", newline="") as file:
+                writer = csv.writer(file)
+                for item in self.count_per_second:
+                    writer.writerow([item])
+        self.view.window.quit()
+
+    def run(self, parent_controler, count_per_second, tk_image_count_plot):
+        self.count_per_second = count_per_second
+        self.parent_controler = parent_controler
+        self.view.run(parent_controler.view.window)
+        self.view.set_image(tk_image_count_plot)
+        self.init_callbacks()
+

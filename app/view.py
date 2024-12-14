@@ -263,9 +263,34 @@ class ResultProcessView:
         self._build_gui(parent)
         self.window.deiconify()
 
-
 class ResultView:
-    pass
+    def __init__(self):
+        self.title = "Result View"
+
+    def _build_gui(self, parent):
+        self.window = customtkinter.CTkToplevel(parent)
+        self.window.title(self.title)
+        self.window.geometry("800x600")
+
+        frame = customtkinter.CTkFrame(self.window)
+        frame.place(relx=0.5, rely=0.5, anchor="c")
+
+        self.window.image_frame = customtkinter.CTkLabel(frame, text="")
+        self.window.image_frame.grid(row=0, column=0, columnspan=10, padx=10, pady=10, sticky="ew")
+
+        self.window.button_save = customtkinter.CTkButton(frame, width=80, text="Save")
+        self.window.button_save.grid(row=5, column=0, padx=10, pady=10, sticky="ew")
+
+    def set_image(self, img):
+        #img = ImageTk.PhotoImage(img_path)
+
+        #breakpoint()
+        self.window.image_frame.configure(image=img)
+        self.window.image_frame.image = img
+
+    def run(self, parent):
+        self._build_gui(parent)
+        self.window.deiconify()
 
 
 # frame information

@@ -5,6 +5,7 @@ from controler import (
     MaskingControler,
     ResultControler,
     ResultProcessControler,
+    ResultControler
 )
 from view import (
     MainWindowView,
@@ -12,6 +13,7 @@ from view import (
     MaskingView,
     ResultView,
     ResultProcessView,
+    ResultView
 )
 from model import (
     MainWindowModel,
@@ -19,6 +21,7 @@ from model import (
     MaskingModel,
     ResultModel,
     ResultProcessModel,
+    ResultModel
 )
 
 config = Configuration()
@@ -38,12 +41,12 @@ masking_view = MaskingView()
 masking_model = MaskingModel()
 masking_controler = MaskingControler(masking_view, masking_model, config)
 
+# result process instantiation
 result_process_view = ResultProcessView()
 result_process_model = ResultProcessModel()
 result_process_controler = ResultProcessControler(
     result_process_view, result_process_model, config
 )
-
 
 # result instantiation
 result_view = ResultView()

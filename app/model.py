@@ -6,6 +6,7 @@ from dataclasses import dataclass
 import customtkinter
 from matplotlib import cm
 from datetime import datetime
+import tempfile
 import matplotlib.pyplot as plt
 
 COEF_FADE_IN = 1.00
@@ -337,15 +338,20 @@ class ResultProcessModel:
         plt.ylabel("count")
 
         if len(count_per_second) > 15 and len(count_per_second) < 20:
-            plt.xticks(np.arange(0, len(count_per_second) + 1, 5))
+            plt.xticks(np.arange(0, len(count_per_second) + 5, 5))
         elif len(count_per_second) > 30:
-            plt.xticks(np.arange(0, len(count_per_second) + 1, 15))
+            plt.xticks(np.arange(0, len(count_per_second) + 15, 15))
         else:
             plt.xticks(np.arange(0, len(count_per_second) + 1, 1))
 
-        plt.show()
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
+        plt.savefig(temp_file.name)
+        plt_image = Image.open(temp_file.name)
+        tk_image_count_plot = customtkinter.CTkImage(light_image=plt_image, dark_image=plt_image, size=(int(640), int(480)))
+        
+        temp_file.close()
 
-        return count_per_second
+        return count_per_second, tk_image_count_plot
 
 
 class ResultModel:
