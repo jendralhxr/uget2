@@ -8,6 +8,9 @@ class MainWindowView:
         super().__init__()
         self._show_gui("COMOT ver 0.1")
 
+    def set_title(self, title):
+        self.window.title(title)
+
     def _show_gui(self, title):
         self.window = customtkinter.CTk()
         self.window.title(title)
