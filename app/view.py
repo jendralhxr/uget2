@@ -257,6 +257,18 @@ class ResultProcessView:
         )
         self.window.button_process.grid(row=2, column=5, padx=10, pady=10, sticky="ew")
 
+    def show_loading_box(self):
+        self.loading_box = customtkinter.CTkToplevel(self.window)
+        self.loading_box.title("Loading")
+        self.loading_box.geometry("200x50")
+        loading_label = customtkinter.CTkLabel(
+            self.loading_box, text=" ⌛ Processing... ⌛", font=("Helvetica", 14)
+        )
+        loading_label.pack(expand=True)
+
+    def close_loading_box(self):
+        self.loading_box.destroy()
+
     def run(self, parent):
         self._build_gui(parent)
         self.window.deiconify()

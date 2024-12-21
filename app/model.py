@@ -336,7 +336,7 @@ class ResultProcessModel:
         plt.xlabel("time (second)")
         plt.ylabel("count")
 
-        if len(count_per_second) > 15 and len(count_per_second) < 20:
+        if len(count_per_second) > 15 and len(count_per_second) <= 30:
             plt.xticks(np.arange(0, len(count_per_second) + 5, 5))
         elif len(count_per_second) > 30:
             plt.xticks(np.arange(0, len(count_per_second) + 15, 15))
@@ -364,7 +364,7 @@ class ResultModel:
         plt.xlabel("time (second)")
         plt.ylabel("count")
 
-        if len(count_per_second) > 15 and len(count_per_second) < 20:
+        if len(count_per_second) > 15 and len(count_per_second) <= 30:
             plt.xticks(np.arange(0, len(count_per_second) + 5, 5))
         elif len(count_per_second) > 30:
             plt.xticks(np.arange(0, len(count_per_second) + 15, 15))

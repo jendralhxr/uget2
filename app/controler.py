@@ -20,7 +20,7 @@ class MainWindowControler:
         if starting:
             self.open_video()
             self.view.run()
-            
+
         else:
             if self.model.video_data.file_name:
                 self.view.set_title(f"COMOT - {self.model.video_data.file_name}")
@@ -271,11 +271,15 @@ class ResultProcessControler:
         start_time = self.view.window.entry_start.get()
         end_time = self.view.window.entry_end.get()
 
+        self.view.window.withdraw()
+
+        self.view.show_loading_box()
+        self.view.window.update_idletasks()
         count_per_second, tk_image_count_plot = self.model.calculate_count(
             self.parent_controler.model.video_player, start_time, end_time
         )
 
-        self.view.window.withdraw()
+        self.view.close_loading_box()
         self.parent_controler.top_controler["result"].run(
             self, count_per_second, tk_image_count_plot
         )
