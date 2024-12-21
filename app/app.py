@@ -3,7 +3,6 @@ from controler import (
     MainWindowControler,
     OpenFileControler,
     MaskingControler,
-    ResultControler,
     ResultProcessControler,
     ResultControler,
 )
@@ -11,7 +10,6 @@ from view import (
     MainWindowView,
     OpenFileView,
     MaskingView,
-    ResultView,
     ResultProcessView,
     ResultView,
 )
@@ -19,7 +17,6 @@ from model import (
     MainWindowModel,
     OpenFileModel,
     MaskingModel,
-    ResultModel,
     ResultProcessModel,
     ResultModel,
 )

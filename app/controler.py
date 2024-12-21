@@ -20,7 +20,10 @@ class MainWindowControler:
         if starting:
             self.open_video()
             self.view.run()
+            
         else:
+            if self.model.video_data.file_name:
+                self.view.set_title(f"COMOT - {self.model.video_data.file_name}")
             self.model.instantiate_video_player(
                 self.view.window.video_frame1,
                 self.view.window.video_frame2,

@@ -9,9 +9,7 @@ from datetime import datetime
 import tempfile
 import matplotlib.pyplot as plt
 
-COEF_FADE_IN = 1.00
-COEF_FADE_OUT = 0.90
-HEATMAP_CEIL = COEF_FADE_IN * 60
+HEATMAP_WINDOW = 20
 
 
 # Utilities
@@ -167,7 +165,7 @@ class VideoPlayer:
                 frame_i = 2
                 self.current_frame = 2
 
-            window_size = min(frame_i - 1, 20)
+            window_size = min(frame_i - 1, HEATMAP_WINDOW)
             pil_bin_img = self.get_heat_map(frame_i - window_size, frame_i)
 
         self.current_processed_image = pil_bin_img
