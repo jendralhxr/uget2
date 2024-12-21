@@ -293,6 +293,9 @@ class ResultControler:
 
     def init_callbacks(self):
         self.view.window.button_save.configure(command=self.button_save_pressed)
+        self.view.window.button_save_image.configure(
+            command=self.button_save_image_pressed
+        )
 
     def button_save_pressed(self):
         file_path = filedialog.asksaveasfilename(
@@ -306,6 +309,19 @@ class ResultControler:
                 writer = csv.writer(file)
                 for item in self.count_per_second:
                     writer.writerow([item])
+        self.view.window.quit()
+
+    def button_save_image_pressed(self):
+        file_path = filedialog.asksaveasfilename(
+            defaultextension=".png",
+            filetypes=[
+                ("PNG files", "*.png"),
+                ("JPEG files", "*.jpg"),
+                ("All files", "*.*"),
+            ],
+        )
+        if file_path:
+            self.model.save_image(file_path, self.count_per_second)
         self.view.window.quit()
 
     def run(self, parent_controler, count_per_second, tk_image_count_plot):

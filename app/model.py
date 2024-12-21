@@ -347,6 +347,7 @@ class ResultProcessModel:
 
         temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
         plt.savefig(temp_file.name)
+        plt.close()
         plt_image = Image.open(temp_file.name)
         tk_image_count_plot = customtkinter.CTkImage(
             light_image=plt_image, dark_image=plt_image, size=(int(640), int(480))
@@ -358,4 +359,19 @@ class ResultProcessModel:
 
 
 class ResultModel:
-    pass
+    def save_image(self, file_path, count_per_second):
+        file_extension = file_path.split(".")[-1]
+
+        plt.plot(count_per_second)
+        plt.xlabel("time (second)")
+        plt.ylabel("count")
+
+        if len(count_per_second) > 15 and len(count_per_second) < 20:
+            plt.xticks(np.arange(0, len(count_per_second) + 5, 5))
+        elif len(count_per_second) > 30:
+            plt.xticks(np.arange(0, len(count_per_second) + 15, 15))
+        else:
+            plt.xticks(np.arange(0, len(count_per_second) + 1, 1))
+
+        plt.savefig(file_path, format=file_extension, dpi=300)
+        plt.close()

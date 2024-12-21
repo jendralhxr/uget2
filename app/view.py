@@ -1,6 +1,7 @@
 import customtkinter
 from customtkinter import CTkOptionMenu
 from PIL import Image, ImageTk
+import sys
 
 
 class MainWindowView:
@@ -264,6 +265,8 @@ class ResultView:
 
     def _build_gui(self, parent):
         self.window = customtkinter.CTkToplevel(parent)
+        self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
+
         self.window.title(self.title)
         self.window.geometry("800x600")
 
@@ -278,12 +281,22 @@ class ResultView:
         self.window.button_save = customtkinter.CTkButton(frame, width=80, text="Save")
         self.window.button_save.grid(row=5, column=0, padx=10, pady=10, sticky="ew")
 
-    def set_image(self, img):
-        # img = ImageTk.PhotoImage(img_path)
+        self.window.button_save_image = customtkinter.CTkButton(
+            frame, width=80, text="Save Image"
+        )
+        self.window.button_save_image.grid(
+            row=5, column=1, padx=10, pady=10, sticky="ew"
+        )
 
-        # breakpoint()
+    def set_image(self, img):
         self.window.image_frame.configure(image=img)
         self.window.image_frame.image = img
+
+    def on_closing(self):
+        # Add your custom function here
+        print("System exit")
+        self.window.destroy()
+        sys.exit()
 
     def run(self, parent):
         self._build_gui(parent)
