@@ -67,6 +67,7 @@ class VideoPlayer:
         self.tkinter_slider = tkinter_slider
         self.tkinter_label_frame1 = label_slider_frame1
         self.cap = cv.VideoCapture(video_data.file_name)
+        self.framecount= self.cap.get(cv.CAP_PROP_FRAME_COUNT)
         self.playing = True
         self.mode = "binary"  # or "heatmap"
         self.thresholding_method = "triangle"  # or "binary"
