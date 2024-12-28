@@ -330,10 +330,10 @@ class ResultView:
             row=0, column=0, columnspan=10, padx=10, pady=10, sticky="ew"
         )
 
-        self.window.button_save = customtkinter.CTkButton(
+        self.window.button_save_csv = customtkinter.CTkButton(
             frame, width=80, text="Save CSV"
         )
-        self.window.button_save.grid(row=5, column=0, padx=10, pady=10, sticky="ew")
+        self.window.button_save_csv.grid(row=5, column=0, padx=10, pady=10, sticky="ew")
 
         self.window.button_save_image = customtkinter.CTkButton(
             frame, width=80, text="Save Image"

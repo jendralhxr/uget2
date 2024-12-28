@@ -306,12 +306,12 @@ class ResultControler:
         self.tmp_count_plot_path = None
 
     def init_callbacks(self):
-        self.view.window.button_save.configure(command=self.button_save_pressed)
+        self.view.window.button_save_csv.configure(command=self.button_save_csv_pressed)
         self.view.window.button_save_image.configure(
             command=self.button_save_image_pressed
         )
 
-    def button_save_pressed(self):
+    def button_save_csv_pressed(self):
         file_path = filedialog.asksaveasfilename(
             defaultextension=".csv",
             filetypes=[
@@ -319,10 +319,7 @@ class ResultControler:
             ],
         )
         if file_path:
-            with open(file_path, "w", newline="") as file:
-                writer = csv.writer(file)
-                for item in self.count_per_second:
-                    writer.writerow([item])
+            self.model.save_csv(file_path, self.count_per_second, self.meta_data)
 
     def button_save_image_pressed(self):
         file_path = filedialog.asksaveasfilename(

@@ -8,6 +8,7 @@ from matplotlib import cm
 from datetime import datetime
 import tempfile
 import matplotlib.pyplot as plt
+import csv
 
 HEATMAP_WINDOW = 20
 
@@ -385,3 +386,17 @@ class ResultModel:
 
         plt.savefig(file_path, format=file_extension, dpi=300)
         plt.close()
+
+    def save_csv(self, file_path, count_per_second, meta_data):
+        with open(file_path, "w", newline="") as file:
+            writer = csv.writer(file)
+            # Split the metadata into lines and prefix each line with '# '
+            formatted_meta_data = "\n".join(
+                [f"#{line}" for line in meta_data.split("\n")]
+            )
+            # Write each line of metadata as a separate row
+            for meta_line in formatted_meta_data.split("\n"):
+                writer.writerow([meta_line])
+            # Write the count_per_second data
+            for item in count_per_second:
+                writer.writerow([int(item)])
