@@ -282,13 +282,13 @@ class ResultProcessControler:
         self.view.window.withdraw()
         self.view.show_loading_box()
 
-        count_per_second, tk_image_count_plot = self.model.calculate_count(
+        count_per_second, tk_image_count_plot, meta_data = self.model.calculate_count(
             self.parent_controler.model.video_player, start_time, end_time
         )
 
         self.view.close_loading_box()
         self.parent_controler.top_controler["result"].run(
-            self, count_per_second, tk_image_count_plot
+            self, count_per_second, tk_image_count_plot, meta_data
         )
 
     def run(self, parent_controler):
@@ -334,10 +334,11 @@ class ResultControler:
             ],
         )
         if file_path:
-            self.model.save_image(file_path, self.count_per_second)
+            self.model.save_image(file_path, self.count_per_second, self.meta_data)
 
-    def run(self, parent_controler, count_per_second, tk_image_count_plot):
+    def run(self, parent_controler, count_per_second, tk_image_count_plot, meta_data):
         self.count_per_second = count_per_second
+        self.meta_data = meta_data
         self.parent_controler = parent_controler
         self.view.run(parent_controler.view.window)
         self.view.set_image(tk_image_count_plot)

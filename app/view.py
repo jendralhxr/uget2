@@ -355,8 +355,3 @@ class ResultView:
     def run(self, parent):
         self._build_gui(parent)
         self.window.deiconify()
-
-
-# frame information
-# snapshots 2 tombol
-# ukuran frame

@@ -334,15 +334,16 @@ class ResultProcessModel:
 
         print(f"end {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
+        meta_data = f"file: {video_player.video_data.file_name}"
+        meta_data += f"\nthresholding method: {video_player.thresholding_method}"
+        if video_player.thresholding_method == "binary":
+            meta_data += f", threshold value: {video_player.binary_thresholding_param}"
+
         plt.plot(count_per_second)
         plt.xlabel("time (second)")
         plt.ylabel("count")
         plt.subplots_adjust(bottom=0.2)
 
-        meta_data = f"file: {video_player.video_data.file_name}"
-        meta_data += f"\nthresholding method: {video_player.thresholding_method}"
-        if video_player.thresholding_method == "binary":
-            meta_data += f" threshold value: {video_player.binary_thresholding_param}"
         plt.figtext(0.03, 0.03, meta_data, ha="left", fontsize=10)
 
         if len(count_per_second) > 15 and len(count_per_second) <= 30:
@@ -362,16 +363,18 @@ class ResultProcessModel:
 
         temp_file.close()
 
-        return count_per_second, tk_image_count_plot
+        return count_per_second, tk_image_count_plot, meta_data
 
 
 class ResultModel:
-    def save_image(self, file_path, count_per_second):
+    def save_image(self, file_path, count_per_second, meta_data):
         file_extension = file_path.split(".")[-1]
 
         plt.plot(count_per_second)
         plt.xlabel("time (second)")
         plt.ylabel("count")
+        plt.subplots_adjust(bottom=0.2)
+        plt.figtext(0.03, 0.03, meta_data, ha="left", fontsize=10)
 
         if len(count_per_second) > 15 and len(count_per_second) <= 30:
             plt.xticks(np.arange(0, len(count_per_second) + 5, 5))
