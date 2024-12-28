@@ -16,6 +16,7 @@ class MainWindowView:
         self.window = customtkinter.CTk()
         self.window.title(title)
         self.window.geometry("1024x640")
+        self.window.minsize(1024, 640)
 
         self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
 
@@ -163,6 +164,7 @@ class OpenFileView:
         self.window = customtkinter.CTkToplevel(parent)
         self.window.title(self.title)
         self.window.geometry("450x180")
+        self.window.minsize(450, 180)
 
         self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
 
@@ -201,6 +203,7 @@ class MaskingView:
         self.window = customtkinter.CTkToplevel(parent)
         self.window.title(self.title)
         self.window.geometry("1024x640")
+        self.window.minsize(1024, 640)
 
         self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
 
@@ -258,6 +261,7 @@ class ResultProcessView:
         self.window = customtkinter.CTkToplevel(parent)
         self.window.title(self.title)
         self.window.geometry("400x300")
+        self.window.minsize(400, 300)
 
         self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
 
@@ -321,6 +325,7 @@ class ResultView:
 
         self.window.title(self.title)
         self.window.geometry("800x600")
+        self.window.minsize(800, 600)
 
         frame = customtkinter.CTkFrame(self.window)
         frame.place(relx=0.5, rely=0.5, anchor="c")
