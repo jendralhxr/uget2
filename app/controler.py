@@ -280,9 +280,8 @@ class ResultProcessControler:
         end_time = self.view.window.entry_end.get()
 
         self.view.window.withdraw()
-
         self.view.show_loading_box()
-        self.view.window.update_idletasks()
+
         count_per_second, tk_image_count_plot = self.model.calculate_count(
             self.parent_controler.model.video_player, start_time, end_time
         )

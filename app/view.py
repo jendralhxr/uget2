@@ -287,11 +287,15 @@ class ResultProcessView:
     def show_loading_box(self):
         self.loading_box = customtkinter.CTkToplevel(self.window)
         self.loading_box.title("Loading")
-        self.loading_box.geometry("200x50")
+        self.loading_box.geometry("300x100")
+        self.loading_box.attributes("-topmost", True)  # Keep the popup on top
+
         loading_label = customtkinter.CTkLabel(
-            self.loading_box, text=" ⌛ Processing... ⌛", font=("Helvetica", 14)
+            self.loading_box, text=" ⌛ Processing... ⌛", font=("Arial", 14)
         )
         loading_label.pack(expand=True)
+
+        self.loading_box.update_idletasks()  # Ensure GUI updates properly
 
     def close_loading_box(self):
         self.loading_box.destroy()
