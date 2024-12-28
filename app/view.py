@@ -125,7 +125,7 @@ class MainWindowView:
         )
         self.window.label_display_method.grid(row=3, column=8, sticky="w")
         self.window.button_frame2_switcher = customtkinter.CTkButton(
-            frame, width=80, text="Binary"
+            frame, width=80, text="Detection"
         )
         self.window.button_frame2_switcher.grid(
             row=4, column=8, padx=10, pady=10, sticky="ew"
