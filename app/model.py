@@ -109,6 +109,7 @@ class VideoPlayer:
         start_frame_i = max(0, frame_i - window_size)
         ref = cv.cvtColor(self.video_data.frames[start_frame_i], cv.COLOR_BGR2GRAY)
         ref = np.array(ref)
+        ref_image_np = ref.copy()
         for f in self.video_data.frames[start_frame_i:frame_i]:
             current = cv.cvtColor(f, cv.COLOR_BGR2GRAY)
             ref_image_np = ref.copy()
