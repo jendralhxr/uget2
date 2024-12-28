@@ -100,9 +100,10 @@ class MainWindowControler:
         targetframe= current_frame - int(5 * fps)
         if targetframe < 0:
             targetframe = 0
+        self.model.video_player.pause()
         self.model.video_player.set_frame_to(targetframe)
-        #self.model.video_player.pause()
-
+        self.model.video_player.play()
+        
     def button_frame1_play_pressed(self):
         self.model.video_player.play()
 
@@ -118,9 +119,11 @@ class MainWindowControler:
         targetframe= current_frame + int(5 * fps)
         if targetframe >= self.model.video_player.framecount:
             targetframe = self.model.video_player.framecount - int(5 * fps)
+        self.model.video_player.pause()
         self.model.video_player.set_frame_to(targetframe)
-        # self.model.video_player.pause()
-
+        self.model.video_player.play()
+        
+        
     def slider_frame2_event(self, value):
         self.model.video_player.binary_thresholding_param = int(value)
 
