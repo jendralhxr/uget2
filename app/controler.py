@@ -316,7 +316,6 @@ class ResultControler:
                 writer = csv.writer(file)
                 for item in self.count_per_second:
                     writer.writerow([item])
-        self.view.window.quit()
 
     def button_save_image_pressed(self):
         file_path = filedialog.asksaveasfilename(
@@ -329,7 +328,6 @@ class ResultControler:
         )
         if file_path:
             self.model.save_image(file_path, self.count_per_second)
-        self.view.window.quit()
 
     def run(self, parent_controler, count_per_second, tk_image_count_plot):
         self.count_per_second = count_per_second
