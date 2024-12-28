@@ -337,6 +337,13 @@ class ResultProcessModel:
         plt.plot(count_per_second)
         plt.xlabel("time (second)")
         plt.ylabel("count")
+        plt.subplots_adjust(bottom=0.2)
+
+        meta_data = f"file: {video_player.video_data.file_name}"
+        meta_data += f"\nthresholding method: {video_player.thresholding_method}"
+        if video_player.thresholding_method == "binary":
+            meta_data += f" threshold value: {video_player.binary_thresholding_param}"
+        plt.figtext(0.03, 0.03, meta_data, ha="left", fontsize=10)
 
         if len(count_per_second) > 15 and len(count_per_second) <= 30:
             plt.xticks(np.arange(0, len(count_per_second) + 5, 5))
