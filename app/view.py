@@ -17,6 +17,8 @@ class MainWindowView:
         self.window.title(title)
         self.window.geometry("1024x640")
 
+        self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
+
         frame = customtkinter.CTkFrame(self.window)
         frame.place(relx=0.5, rely=0.5, anchor="c")
 
@@ -143,6 +145,12 @@ class MainWindowView:
         )
         self.window.button_result.grid(row=4, column=10, padx=10, pady=10, sticky="ew")
 
+    def on_closing(self):
+        # Add your custom function here
+        print("System exit")
+        self.window.destroy()
+        sys.exit()
+
     def run(self):
         self.window.mainloop()
 
@@ -155,6 +163,9 @@ class OpenFileView:
         self.window = customtkinter.CTkToplevel(parent)
         self.window.title(self.title)
         self.window.geometry("450x180")
+
+        self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
+
         self.window.grid_columnconfigure(0, weight=1)
         self.window.grid_rowconfigure(0, weight=1)
 
@@ -170,6 +181,12 @@ class OpenFileView:
             row=1, column=1, padx=10, pady=10, sticky="ew"
         )
 
+    def on_closing(self):
+        # Add your custom function here
+        print("System exit")
+        self.window.destroy()
+        sys.exit()
+
     def run(self, parent):
         self._build_gui(parent)
         self.window.deiconify()
@@ -184,6 +201,8 @@ class MaskingView:
         self.window = customtkinter.CTkToplevel(parent)
         self.window.title(self.title)
         self.window.geometry("1024x640")
+
+        self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
 
         frame = customtkinter.CTkFrame(self.window)
         frame.place(relx=0.5, rely=0.5, anchor="c")
@@ -220,6 +239,12 @@ class MaskingView:
     def set_start_frame_image(self, img):
         self.start_frame_img = img
 
+    def on_closing(self):
+        # Add your custom function here
+        print("System exit")
+        self.window.destroy()
+        sys.exit()
+
     def run(self, parent):
         self._build_gui(parent)
         self.window.deiconify()
@@ -233,6 +258,8 @@ class ResultProcessView:
         self.window = customtkinter.CTkToplevel(parent)
         self.window.title(self.title)
         self.window.geometry("400x300")
+
+        self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
 
         frame = customtkinter.CTkFrame(self.window)
         frame.place(relx=0.5, rely=0.5, anchor="c")
@@ -268,6 +295,12 @@ class ResultProcessView:
 
     def close_loading_box(self):
         self.loading_box.destroy()
+
+    def on_closing(self):
+        # Add your custom function here
+        print("System exit")
+        self.window.destroy()
+        sys.exit()
 
     def run(self, parent):
         self._build_gui(parent)
