@@ -1,5 +1,5 @@
 from customtkinter import filedialog
-import csv
+import threading
 
 
 class MainWindowControler:
@@ -280,21 +280,43 @@ class ResultProcessControler:
         end_time = self.view.window.entry_end.get()
 
         self.view.window.withdraw()
-        self.view.show_loading_box()
 
-        count_per_second, tk_image_count_plot, meta_data = self.model.calculate_count(
-            self.parent_controler.model.video_player, start_time, end_time
-        )
-
-        self.view.close_loading_box()
-        self.parent_controler.top_controler["result"].run(
-            self, count_per_second, tk_image_count_plot, meta_data
+        self.parent_controler.top_controler["processing"].run(
+            self, self.parent_controler.model.video_player, start_time, end_time
         )
 
     def run(self, parent_controler):
         self.parent_controler = parent_controler
         self.view.run(parent_controler.view.window)
         self.init_callbacks()
+
+
+class ProcessingControler:
+    def __init__(self, view, model, config) -> None:
+        self.view = view
+        self.config = config
+        self.model = model
+
+    def run(self, parent_controler, video_player, start_time, end_time):
+        self.parent_controler = parent_controler.parent_controler
+
+        # Show the view
+        self.view.run(self.parent_controler.view.window)
+
+        # Perform calculations in a separate thread
+        threading.Thread(
+            target=self.calculate_and_update, args=(video_player, start_time, end_time)
+        ).start()
+
+    def calculate_and_update(self, video_player, start_time, end_time):
+        count_per_second, tk_image_count_plot, meta_data = self.model.calculate_count(
+            video_player, start_time, end_time
+        )
+
+        self.parent_controler.top_controler["result"].run(
+            self, count_per_second, tk_image_count_plot, meta_data
+        )
+        self.view.window.withdraw()
 
 
 class ResultControler:

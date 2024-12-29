@@ -288,21 +288,34 @@ class ResultProcessView:
         )
         self.window.button_process.grid(row=2, column=5, padx=10, pady=10, sticky="ew")
 
-    def show_loading_box(self):
-        self.loading_box = customtkinter.CTkToplevel(self.window)
-        self.loading_box.title("Loading")
-        self.loading_box.geometry("300x100")
-        self.loading_box.attributes("-topmost", True)  # Keep the popup on top
+    def on_closing(self):
+        # Add your custom function here
+        print("System exit")
+        self.window.destroy()
+        sys.exit()
 
-        loading_label = customtkinter.CTkLabel(
-            self.loading_box, text=" ⌛ Processing... ⌛", font=("Arial", 14)
-        )
-        loading_label.pack(expand=True)
+    def run(self, parent):
+        self._build_gui(parent)
+        self.window.deiconify()
 
-        self.loading_box.update_idletasks()  # Ensure GUI updates properly
 
-    def close_loading_box(self):
-        self.loading_box.destroy()
+class ProcessingView:
+    def __init__(self):
+        self.title = "Processing"
+
+    def _build_gui(self, parent):
+        self.window = customtkinter.CTkToplevel(parent)
+        self.window.title(self.title)
+        self.window.geometry("400x300")
+        self.window.minsize(400, 300)
+
+        self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
+
+        frame = customtkinter.CTkFrame(self.window)
+        frame.place(relx=0.5, rely=0.5, anchor="c")
+
+        self.window.label = customtkinter.CTkLabel(frame, text=" ⌛ Processing... ⌛")
+        self.window.label.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
 
     def on_closing(self):
         # Add your custom function here

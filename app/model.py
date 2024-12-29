@@ -308,6 +308,10 @@ class MaskingModel:
 
 
 class ResultProcessModel:
+    pass
+
+
+class ProcessingModel:
     def calculate_count(self, video_player, start_time, end_time):
         fps = int(video_player.video_data.fps)
         print("calculate model")
