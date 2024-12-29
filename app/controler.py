@@ -157,6 +157,7 @@ class MainWindowControler:
     def button_result_pressed(self):
         print("btn result pressed")
         self.view.window.withdraw()
+        self.model.video_player.stop()
         self.top_controler["result_process"].run(self)
 
 
