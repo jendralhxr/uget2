@@ -141,6 +141,8 @@ class MainWindowControler:
         else:
             self.model.video_player.mode = "binary"
             self.view.window.button_frame2_switcher.configure(text="Binary")
+        value = self.view.window.slider_frame1.get()
+        self.model.video_player.set_frame_to(int(value), set_slider=False)
 
     def button_frame2_snapshot_pressed(self):
         file_path = filedialog.asksaveasfilename(
