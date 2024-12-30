@@ -155,6 +155,8 @@ class MainWindowControler:
             self.model.video_player.current_processed_image.save(file_path)
 
     def button_result_pressed(self):
+        self.model.video_player.pause()
+        self.model.video_player.set_frame_to(0)
         print("btn result pressed")
         self.view.window.withdraw()
         self.top_controler["result_process"].run(self)
