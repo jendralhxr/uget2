@@ -3,6 +3,7 @@ from customtkinter import CTkOptionMenu
 from PIL import Image, ImageTk
 import sys
 
+DEFAULT_BINARY_THRESHOLD = 15
 
 class MainWindowView:
     def __init__(self):
@@ -99,13 +100,13 @@ class MainWindowView:
         )
 
         self.window.label_slider_frame2 = customtkinter.CTkLabel(
-            frame, text="Threshold (Binary):", anchor="w"
+            frame, text=f"Threshold (Binary): {DEFAULT_BINARY_THRESHOLD}", anchor="w"
         )
         self.window.label_slider_frame2.grid(row=1, column=6, sticky="w")
         self.window.slider_frame2 = customtkinter.CTkSlider(
             frame, from_=0, to=50, number_of_steps=50
         )
-        self.window.slider_frame2.set(15)
+        self.window.slider_frame2.set(DEFAULT_BINARY_THRESHOLD)
         self.window.slider_frame2.grid(
             row=2, column=6, columnspan=5, padx=10, pady=(0, 10), sticky="ewn"
         )
