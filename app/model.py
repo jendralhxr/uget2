@@ -1,7 +1,7 @@
 from itertools import chain
 import numpy as np
 import cv2 as cv
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
 from dataclasses import dataclass
 import customtkinter
 from matplotlib import cm
@@ -52,6 +52,64 @@ def precomp_ref(frames):
     return ref_image_precomputed
 
 
+def append_colorbar_below(image, colorbar):
+    # Ensure both images have the same width
+    if image.width != colorbar.width:
+        colorbar = colorbar.resize((image.width, colorbar.height))
+
+    # Create a new image with the combined height
+    combined_height = image.height + colorbar.height
+    combined_image = Image.new("RGB", (image.width, combined_height))
+
+    # Paste the images into the new image
+    combined_image.paste(image, (0, 0))  # Paste the main image at the top
+    combined_image.paste(colorbar, (0, image.height))  # Paste the colorbar below it
+
+    return combined_image
+
+
+def add_text_to_image(
+    image, text, position="bottom", text_color="black", font_size=20, bg_color=None
+):
+    font = (
+        ImageFont.load_default()
+    )  # Fallback to default font if specified font not found
+
+    # Create a Draw object
+    draw = ImageDraw.Draw(image)
+
+    # Calculate text dimensions using textbbox
+    text_bbox = draw.textbbox((0, 0), text, font=font)
+    text_width = text_bbox[2] - text_bbox[0]
+    text_height = text_bbox[3] - text_bbox[1]
+
+    # Adjust canvas size for text
+    if position in ["top", "bottom"]:
+        new_height = image.height + text_height + 10
+        new_image = Image.new("RGB", (image.width, new_height), bg_color or "white")
+        if position == "top":
+            text_y = 5
+            image_y = text_height + 10
+        else:
+            text_y = image.height + 5
+            image_y = 0
+        new_image.paste(image, (0, image_y))
+    elif position == "center":
+        new_image = image.copy()
+        text_y = (image.height - text_height) // 2
+    else:
+        raise ValueError("Invalid position. Choose 'top', 'bottom', or 'center'.")
+
+    # Center the text horizontally
+    text_x = (image.width - text_width) // 2
+
+    # Draw the text on the new image
+    draw = ImageDraw.Draw(new_image)
+    draw.text((text_x, text_y), text, fill=text_color, font=font)
+
+    return new_image
+
+
 class VideoPlayer:
     def __init__(
         self,
@@ -60,6 +118,7 @@ class VideoPlayer:
         tkinter_frame2,
         tkinter_slider,
         label_slider_frame1,
+        color_bar,
     ) -> None:
         self.video_data = video_data
         self.current_frame = 0
@@ -79,6 +138,9 @@ class VideoPlayer:
             self.video_data.width,
             self.video_data.mask_coordinate,
         )
+        self.color_bar = color_bar
+
+        self.color_bar = add_text_to_image(color_bar, f"file: {video_data.file_name}")
 
     def get_heat_map(self, start_frame, end_frame):
         cues = [
@@ -103,6 +165,8 @@ class VideoPlayer:
 
         # Create the PIL image from the RGB array
         image = Image.fromarray(colored_array_rgb, "RGB")
+
+        image = append_colorbar_below(image, self.color_bar)
 
         return image
 
@@ -276,7 +340,12 @@ class MainWindowModel:
         self.video_data = video_data
 
     def instantiate_video_player(
-        self, tkinter_frame1, tkinter_frame2, tkinter_slider, label_slider_frame1
+        self,
+        tkinter_frame1,
+        tkinter_frame2,
+        tkinter_slider,
+        label_slider_frame1,
+        color_bar,
     ):
         self.video_player = VideoPlayer(
             self.video_data,
@@ -284,6 +353,7 @@ class MainWindowModel:
             tkinter_frame2,
             tkinter_slider,
             label_slider_frame1,
+            color_bar,
         )
 
 

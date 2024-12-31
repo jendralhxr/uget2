@@ -29,6 +29,7 @@ class MainWindowControler:
                 self.view.window.video_frame2,
                 self.view.window.slider_frame1,
                 self.view.window.label_slider_frame1,
+                self.view.color_bar,
             )
 
             # set slider params
@@ -125,7 +126,9 @@ class MainWindowControler:
 
     def slider_frame2_event(self, value):
         self.model.video_player.binary_thresholding_param = int(value)
-        self.view.window.label_slider_frame2.configure(text=f"Threshold (Binary): {value}")
+        self.view.window.label_slider_frame2.configure(
+            text=f"Threshold (Binary): {value}"
+        )
 
     def option_menu_frame2_thresholding_method_event(self, value):
         if value == "Triangle":

@@ -5,6 +5,7 @@ import sys
 
 DEFAULT_BINARY_THRESHOLD = 15
 
+
 class MainWindowView:
     def __init__(self):
         super().__init__()
@@ -30,6 +31,7 @@ class MainWindowView:
             size=(int(640 * 0.75), int(480 * 0.75)),
         )
 
+        self.color_bar = Image.open("assets/colorbar.png")
         ###############################################################################
         # Frame 1 widgets definition (Annotated Video)
         ###############################################################################
