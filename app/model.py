@@ -9,6 +9,7 @@ from datetime import datetime
 import tempfile
 import matplotlib.pyplot as plt
 import csv
+import copy
 
 HEATMAP_WINDOW = 20
 
@@ -139,8 +140,7 @@ class VideoPlayer:
             self.video_data.mask_coordinate,
         )
         self.color_bar = color_bar
-
-        self.color_bar = add_text_to_image(color_bar, f"file: {video_data.file_name}")
+        self.color_bar_default = copy.copy(color_bar)
 
     def get_heat_map(self, start_frame, end_frame):
         cues = [
@@ -233,6 +233,14 @@ class VideoPlayer:
                 self.current_frame = 2
 
             window_size = min(frame_i - 1, HEATMAP_WINDOW)
+            self.color_bar = add_text_to_image(
+                self.color_bar_default,
+                (
+                    f"file: {self.video_data.file_name}, "
+                    f"method: {self.thresholding_method}, "
+                    f"time: {frame_i / self.video_data.fps:.3f} s"
+                ),
+            )
             pil_bin_img = self.get_heat_map(frame_i - window_size, frame_i)
 
         self.current_processed_image = pil_bin_img
