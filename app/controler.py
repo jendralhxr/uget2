@@ -127,7 +127,7 @@ class MainWindowControler:
     def slider_frame2_event(self, value):
         self.model.video_player.binary_thresholding_param = int(value)
         self.view.window.label_slider_frame2.configure(
-            text=f"Threshold (Binary): {value}"
+            text=f"Threshold (Binary): {int(value)}"
         )
 
     def option_menu_frame2_thresholding_method_event(self, value):
