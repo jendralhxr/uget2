@@ -145,6 +145,8 @@ class MainWindowControler:
         else:
             self.model.video_player.mode = "binary"
             self.view.window.button_frame2_switcher.configure(text="Binary")
+        value = self.view.window.slider_frame1.get()
+        self.model.video_player.set_frame_to(int(value), set_slider=False)
 
     def button_frame2_snapshot_pressed(self):
         file_path = filedialog.asksaveasfilename(
@@ -159,8 +161,7 @@ class MainWindowControler:
             self.model.video_player.current_processed_image.save(file_path)
 
     def button_result_pressed(self):
-        self.model.video_player.pause()
-        self.model.video_player.set_frame_to(0)
+        self.model.video_player.stop()
         print("btn result pressed")
         self.view.window.withdraw()
         self.top_controler["result_process"].run(self)
