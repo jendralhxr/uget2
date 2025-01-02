@@ -179,8 +179,8 @@ class OpenFileControler:
         )
 
     def button_load_video_pressed(self):
-        filename = filedialog.askopenfilename()
-        self.model.set_file_name(filename)
+        filepath = filedialog.askopenfilename()
+        self.model.set_file_path(filepath)
 
         # load video data to the main controler
         video_data = self.model.load_video()

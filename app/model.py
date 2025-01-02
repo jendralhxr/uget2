@@ -127,7 +127,7 @@ class VideoPlayer:
         self.tkinter_frame2 = tkinter_frame2
         self.tkinter_slider = tkinter_slider
         self.tkinter_label_frame1 = label_slider_frame1
-        self.cap = cv.VideoCapture(video_data.file_name)
+        self.cap = cv.VideoCapture(video_data.file_path)
         self.framecount = self.cap.get(cv.CAP_PROP_FRAME_COUNT)
         self.playing = True
         self.mode = "binary"  # or "heatmap"
@@ -289,6 +289,7 @@ class VideoPlayer:
 
 @dataclass
 class VideoData:
+    file_path: str
     file_name: str
     width: int
     height: int
@@ -305,12 +306,14 @@ class VideoData:
 class OpenFileModel:
     def __init__(self) -> None:
         self.file_name = None
+        self.file_path = None
 
-    def set_file_name(self, file_name):
-        self.file_name = file_name
+    def set_file_path(self, file_path):
+        self.file_path = file_path
+        self.file_name = file_path.split("/")[-1]
 
     def load_video(self):
-        cap = cv.VideoCapture(self.file_name)
+        cap = cv.VideoCapture(self.file_path)
         width = int(cap.get(cv.CAP_PROP_FRAME_WIDTH))
         height = int(cap.get(cv.CAP_PROP_FRAME_HEIGHT))
         fps = cap.get(cv.CAP_PROP_FPS)
@@ -325,6 +328,7 @@ class OpenFileModel:
         # DISABLE ref precomp TODO: CLEANING
         ref_precomp = None  # precomp_ref(frames)
         video_data = VideoData(
+            file_path=self.file_path,
             file_name=self.file_name,
             width=width,
             height=height,
