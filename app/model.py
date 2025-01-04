@@ -233,11 +233,16 @@ class VideoPlayer:
                 self.current_frame = 2
 
             window_size = min(frame_i - 1, HEATMAP_WINDOW)
+
+            threshold = ""
+            if self.thresholding_method == "binary":
+                threshold = f", threshold value: {self.binary_thresholding_param}"
+
             self.color_bar = add_text_to_image(
                 self.color_bar_default,
                 (
                     f"file: {self.video_data.file_name}, "
-                    f"method: {self.thresholding_method}, "
+                    f"method: {self.thresholding_method}{threshold}, "
                     f"time: {frame_i / self.video_data.fps:.3f} s"
                 ),
             )
