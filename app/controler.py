@@ -47,6 +47,10 @@ class MainWindowControler:
         self.top_controler["open_file"].run(self)
         self.view.window.withdraw()
 
+    def update_frame(self):
+        value = self.view.window.slider_frame1.get()
+        self.model.video_player.set_frame_to(int(value), set_slider=False)
+
     def init_callbacks(self):
         ###############################################################################
         # Frame 1 widgets callbacks init (Annotated Video)
@@ -129,6 +133,7 @@ class MainWindowControler:
         self.view.window.label_slider_frame2.configure(
             text=f"Threshold (Binary): {int(value)}"
         )
+        self.update_frame()
 
     def option_menu_frame2_thresholding_method_event(self, value):
         if value == "Triangle":
@@ -137,6 +142,7 @@ class MainWindowControler:
         elif value == "Binary  ":
             self.view.window.slider_frame2.configure(state="normal")
             self.model.video_player.thresholding_method = "binary"
+        self.update_frame()
 
     def button_frame2_switcher_pressed(self):
         if self.model.video_player.mode == "binary":
@@ -145,8 +151,7 @@ class MainWindowControler:
         else:
             self.model.video_player.mode = "binary"
             self.view.window.button_frame2_switcher.configure(text="Binary")
-        value = self.view.window.slider_frame1.get()
-        self.model.video_player.set_frame_to(int(value), set_slider=False)
+        self.update_frame()
 
     def button_frame2_snapshot_pressed(self):
         file_path = filedialog.asksaveasfilename(
