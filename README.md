@@ -10,6 +10,6 @@ python -u trackandcount.py <inputvideo> <start_frame> <end_frame> <cue.mp4> <hea
 ```
 dependencies: (for the command line version)
 - numpy
-- opencv
+- opencv_python
 - cmapy
 - ffmpegcv (and ffmpeg binary installed separately)
