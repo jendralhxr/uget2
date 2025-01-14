@@ -281,7 +281,7 @@ class VideoPlayer:
 
     def pause(self, frame_i=None):
         self.playing = False
-        time.sleep(0.5)
+        # time.sleep(0.5)
         # if frame_i:
         #     self.show_frame(int(frame_i))
         # else:
