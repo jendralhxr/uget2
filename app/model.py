@@ -10,9 +10,9 @@ import tempfile
 import matplotlib.pyplot as plt
 import csv
 import copy
+import time
 
 HEATMAP_WINDOW = 20
-
 
 # Utilities
 def get_image_from_cap(cap):
@@ -281,10 +281,11 @@ class VideoPlayer:
 
     def pause(self, frame_i=None):
         self.playing = False
-        if frame_i:
-            self.show_frame(int(frame_i))
-        else:
-            self.show_frame(self.current_frame)
+        time.sleep(0.5)
+        # if frame_i:
+        #     self.show_frame(int(frame_i))
+        # else:
+        #     self.show_frame(self.current_frame)
 
     def stop(self):
         self.playing = False
