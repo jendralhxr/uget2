@@ -163,3 +163,4 @@ Footer
 *.pk
 *.MOV
 *.csv
+.DS_Store
