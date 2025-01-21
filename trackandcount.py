@@ -72,6 +72,7 @@ while (key != ord('s')):
         vid_thre = ffmpegcv.VideoWriter(sys.argv[6],'h264')
         break
 
+print('time,count,heatmap_min,heatmap_min,detection_cx,detection_cy,heatmap_cx,heatmap_cy')
 
 # --- main routine
 while (framenum < lastframe) and (framenum < frame_length - 1):
@@ -143,10 +144,10 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
     
     framenum= framenum+1
     
-    cv.imshow("treshold", cue_raw)
-    cv.imshow("deteksi", render)
-    cv.imshow("heatmap", heatmap_render)
-    key = cv.waitKey(1) & 0xff
+    # cv.imshow("treshold", cue_raw)
+    # cv.imshow("deteksi", render)
+    # cv.imshow("heatmap", heatmap_render)
+    # key = cv.waitKey(1) & 0xff
     
     vid_cue.write(render)
     vid_heat.write(heatmap_render)
