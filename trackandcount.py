@@ -86,6 +86,7 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
     
     # uget2 detection: background substraction and thresholding
     cue = cv.absdiff(current, ref)
+    cue = cv.bitwise_and(cue, mask)
     ret, cue_raw = cv.threshold(cue, 0, 250, cv.THRESH_TRIANGLE)
     #ret, cue_raw= cv.threshold(cue,threshold_value,250,cv.THRESH_BINARY)
     cue_raw = cv.bitwise_and(cue_raw, mask)
