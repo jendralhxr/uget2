@@ -1,4 +1,4 @@
-# python -u trackandcount.py input.mp4 0 24000000000000 cue.mp4 heatmap.mp4
+# python -u trackandcount.py input.mp4 0 24000000000000 cue.mp4 heatmap.mp4 thre.mp4
 
 import numpy as np
 import cv2 as cv
@@ -138,10 +138,10 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
     cv.circle(heatmap_render, (cmx,cmy), 4, (0,240,0), -1)
     
     if (framenum%60==0):
-        print(f'{framenum/60:.3f},{len(contours)},{np.min(heatmap)},{np.max(heatmap)},{cmx},{cmy},{hmx},{hmy},{int(framenum/60)},{np.average(tempcount)}')
+        print(f'{framenum/60:.3f},{len(contours)},{np.min(heatmap)},{np.max(heatmap)},{cmx},{cmy},{hmx},{hmy},{int(framenum/60)},{np.average(tempcount)},{ret}')
         tempcount = np.zeros(60, dtype=np.uint)
     else:
-        print(f'{framenum/60:.3f},{len(contours)},{np.min(heatmap)},{np.max(heatmap)},{cmx},{cmy},{hmx},{hmy}')
+        print(f'{framenum/60:.3f},{len(contours)},{np.min(heatmap)},{np.max(heatmap)},{cmx},{cmy},{hmx},{hmy},{ret}')
     
     framenum= framenum+1
     
@@ -150,10 +150,10 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
     # cv.imshow("heatmap", heatmap_render)
     # key = cv.waitKey(1) & 0xff
     
-    vid_cue.write(render)
-    vid_heat.write(heatmap_render)
-    thre = cv.cvtColor(cue_raw, cv.COLOR_GRAY2BGR)
-    vid_thre.write(thre)
+    # vid_cue.write(render)
+    # vid_heat.write(heatmap_render)
+    # thre = cv.cvtColor(cue_raw, cv.COLOR_GRAY2BGR)
+    # vid_thre.write(thre)
     
     # print(framenum)
     if key==27:
