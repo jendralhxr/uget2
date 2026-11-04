@@ -72,7 +72,7 @@ while (key != ord('s')):
         vid_thre = ffmpegcv.VideoWriter(sys.argv[6],'h264')
         break
 
-print('time,count,heatmap_min,heatmap_min,detection_cx,detection_cy,heatmap_cx,heatmap_cy')
+print('time,count,heatmap_min,heatmap_min,detection_cx,detection_cy,heatmap_cx,heatmap_cy,threshold')
 
 # --- main routine
 while (framenum < lastframe) and (framenum < frame_length - 1):
@@ -137,11 +137,11 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
     hmy = int(hmoments["m01"] / hmass)
     cv.circle(heatmap_render, (cmx,cmy), 4, (0,240,0), -1)
     
-    if (framenum%60==0):
-        print(f'{framenum/60:.3f},{len(contours)},{np.min(heatmap)},{np.max(heatmap)},{cmx},{cmy},{hmx},{hmy},{int(framenum/60)},{np.average(tempcount)},{ret}')
-        tempcount = np.zeros(60, dtype=np.uint)
-    else:
-        print(f'{framenum/60:.3f},{len(contours)},{np.min(heatmap)},{np.max(heatmap)},{cmx},{cmy},{hmx},{hmy},{ret}')
+    # if (framenum%60==0):
+    #     print(f'{framenum/60:.3f},{len(contours)},{np.min(heatmap)},{np.max(heatmap)},{cmx},{cmy},{hmx},{hmy},{int(framenum/60)},{np.average(tempcount)},{ret}')
+    #     tempcount = np.zeros(60, dtype=np.uint)
+    # else:
+    print(f'{framenum/60:.3f},{len(contours)},{np.min(heatmap)},{np.max(heatmap)},{cmx},{cmy},{hmx},{hmy},{ret}')
     
     framenum= framenum+1
     
