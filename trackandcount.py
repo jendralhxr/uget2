@@ -38,7 +38,7 @@ key=ord('p')
 color= (0,0,0)
 mask_points=[]
 
-# reference for mask
+# reference for mask, first frame to be read
 ret, current_col = cap.read()
 ref= cv.cvtColor(current_col, cv.COLOR_BGR2GRAY) 
 
@@ -75,23 +75,21 @@ while (key != ord('s')):
 print('time,count,heatmap_min,heatmap_min,detection_cx,detection_cy,heatmap_cx,heatmap_cy,threshold')
 
 # --- main routine
+framenum = startframe
 while (framenum < lastframe) and (framenum < frame_length - 1):
     ret, current_col = cap.read()
     current = cv.cvtColor(current_col, cv.COLOR_BGR2GRAY)
-    cue = cv.bitwise_and(current, mask)
-
+    
     # keep the ref (reference background) the brightest, apply the mask
     ref = np.maximum(ref, current)
-    ref = cv.bitwise_and(ref, mask)
     
     # uget2 detection: background substraction and thresholding
     cue = cv.absdiff(current, ref)
-    cue = cv.bitwise_and(cue, mask)
     ret, cue_raw = cv.threshold(cue, 0, 250, cv.THRESH_TRIANGLE)
     #ret, cue_raw= cv.threshold(cue,threshold_value,250,cv.THRESH_BINARY)
-    cue_raw = cv.bitwise_and(cue_raw, mask)
     #cue_mean = cv.adaptiveThreshold(cue,250,cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY,11,2)
     #cue_gauss = cv.adaptiveThreshold(cue,250,cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY,11,2)
+    cue_raw = cv.bitwise_and(cue_raw, mask)
     
     # uget2 counting with countours
     contours, hierarchy = cv.findContours(cue_raw, cv.RETR_LIST, cv.CHAIN_APPROX_NONE)
@@ -141,24 +139,26 @@ while (framenum < lastframe) and (framenum < frame_length - 1):
     #     print(f'{framenum/60:.3f},{len(contours)},{np.min(heatmap)},{np.max(heatmap)},{cmx},{cmy},{hmx},{hmy},{int(framenum/60)},{np.average(tempcount)},{ret}')
     #     tempcount = np.zeros(60, dtype=np.uint)
     # else:
-    print(f'{framenum/60:.3f},{len(contours)},{np.min(heatmap)},{np.max(heatmap)},{cmx},{cmy},{hmx},{hmy},{ret}')
+    print(f'{framenum/60:.3f},{len(contours)},{np.min(heatmap):.2f},{np.max(heatmap):.2f},{cmx},{cmy},{hmx},{hmy},{ret:.0f}')
     
     framenum= framenum+1
     
-    # cv.imshow("treshold", cue_raw)
-    # cv.imshow("deteksi", render)
-    # cv.imshow("heatmap", heatmap_render)
-    # key = cv.waitKey(1) & 0xff
+    cv.imshow("ref", ref)
+    cv.imshow("cue", cue)
+    cv.imshow("deteksi", render)
+    cv.imshow("heatmap", heatmap_render)
+    #cv.imshow("heatmap", heatmap_render)
+    key = cv.waitKey(1) & 0xff
     
-    # vid_cue.write(render)
-    # vid_heat.write(heatmap_render)
-    # thre = cv.cvtColor(cue_raw, cv.COLOR_GRAY2BGR)
-    # vid_thre.write(thre)
+    vid_cue.write(render)
+    vid_heat.write(heatmap_render)
+    thre = cv.cvtColor(cue_raw, cv.COLOR_GRAY2BGR)
+    vid_thre.write(thre)
     
     # print(framenum)
     if key==27:
         quit()
-    elif key==ord('s'):
+    elif key==ord('s'): # mostly for in-time debugging
         print("save {}".format(framenum))
         cv.imwrite("cue"+str(framenum)+".png", cue)
         cv.imwrite("det"+str(framenum)+".png", cue_raw)
